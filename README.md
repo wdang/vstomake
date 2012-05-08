@@ -1,4 +1,4 @@
 vstomake
 ========
 
-Generate a GNU Makefile from a visual studio .vcproj file or .sln file
+Generates GNU Makefile(s) from a Visual Studio .vcproj or .sln file.
