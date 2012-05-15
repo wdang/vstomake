@@ -1,12 +1,42 @@
-# Compiled Object files
+# Visual Studio artifacts
+*_i.c
+*_p.c
+*.aps
+*.bak
+*.cache
+*.orig
+*.exe
+*.exp
+*.ilk
+*.idb
+*.log
+*.obj
+*.ncb
+*.pdb
+*.pch
+*.sbr
+*.suo
+*.tlb
+*.tlh
+*.user
+*.vspscc
+BuildLog.htm
+
+# Folders
+[Bb]uild*/
+[Bb]in*/
+[Dd]ebug*/
+[Rr]elease*/
+RelWithDebInfo*/
+
+# Misc
+Thumbs.db
+
+# GCC artifacts
 *.slo
 *.lo
 *.o
-
-# Compiled Dynamic libraries
 *.so
-
-# Compiled Static libraries
 *.lai
 *.la
 *.a
