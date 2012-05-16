@@ -158,11 +158,11 @@ std::string GenerateBuildRule(const VCProject::Configuration& config) {
 
     // .o build rule, accommodate for all c++ extensions
     ss << objects_o << ": %.cc\n"
-       << "\t$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< "<< pch_include <<" -fpch-preprocess -o $@\n"
+       << "\t$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< "<< pch_include <<" -o $@\n"
        << objects_o << ": %.cpp\n"
-       << "\t$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< "<< pch_include <<" -fpch-preprocess -o $@\n"
+       << "\t$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< "<< pch_include <<" -o $@\n"
        << objects_o << ": %.cxx\n"
-       << "\t$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< "<< pch_include <<" -fpch-preprocess -o $@\n\n";
+       << "\t$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< "<< pch_include <<" -o $@\n\n";
 
     // Main build rule
     ss << build_rule << "OutDir           :=" << ToUnixPaths(config.output_dir) << "\n"
