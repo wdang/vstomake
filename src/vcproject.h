@@ -1,5 +1,5 @@
-// Copyright 2012 William Dang. 
-// 
+// Copyright 2012 William Dang.
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -32,7 +32,7 @@ struct VCProject {
   // a file referenced by the project
   struct File {
     std::unordered_map<std::string, std::string> properties;
-    std::string                                  path;
+    std::string path;
   };
 
   // a build configuration
@@ -43,14 +43,13 @@ struct VCProject {
 
     //tool properties
     std::unordered_map<std::string, std::unordered_map<std::string, std::string> > properties;
-
-    std::string                                                                    name;
-    std::string                                                                    platform;
-    std::string                                                                    output_dir;
-    std::string                                                                    intermediate_dir;
-    std::string                                                                    vsprops;
-    std::string                                                                    precompiled_header;
-    VCProject::Type                                                                type;
+    std::string     name;
+    std::string     platform;
+    std::string     output_dir;
+    std::string     intermediate_dir;
+    std::string     vsprops;
+    std::string     precompiled_header;
+    VCProject::Type type;
   };
 
   // Construct a VCProject object
@@ -61,8 +60,8 @@ struct VCProject {
 
   // members are populated on construction
   std::vector<Configuration> configurations;
-  std::string                guid;
-  std::string                name;
-  std::string                path;
-  std::string                version;
+  std::string guid;
+  std::string name;
+  std::string path;
+  std::string version;
 };
