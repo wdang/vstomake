@@ -25,6 +25,7 @@ using std::string;
 using std::stringstream;
 using std::unordered_map;
 using std::vector;
+using std::copy_if;
 
 //  The top level build rules are separated by configuration then by platform.
 //  For a project with a Debug and Release configuration that
@@ -205,19 +206,29 @@ Makefile::Makefile(const VCProject& project) {
      << GenerateTopLevelBuildRules(project.configurations);
 
   foreach(auto& config, project.configurations) {
+    // Exclude non c++ source files
+    static const char* kCPPExtensions[] = {".cc",".cpp",".cxx",".c++",".C",".cp",".CPP"};  
+      
+    vector<VCProject::File> sources;
+    sources.reserve(config.files.size());
+       
+    copy_if(config.files.begin(),config.files.end(),std::back_inserter(sources),
+    [](const VCProject::File& file)->bool{
+      foreach(auto* ext, kCPPExtensions){
+        if(file.path.find(ext) != string::npos){
+          return true;
+        }
+      }
+      return false;
+    });
+    
+    
     ss << "#### Configuration: " << config.name     <<" ####\n"
        << "####      Platform: " << config.platform <<" ####\n"
        << config.name << config.platform <<"Sources :=";
-
-    // TODO(wdang): only list INCLUDED c++,c sources, this means checking
-    // for the ExcludedFromBuild property
-    // The following will list every file referenced in the vcproj
-    foreach(auto& f, config.files) {
-      if (f.path.find(".h") == string::npos) {
-        ss << "\\\n"<< ToUnixPaths(StripCurrentDirReference(f.path));
-      }
+    foreach(auto& src, sources) {
+     ss << "\\\n"<< ToUnixPaths(StripCurrentDirReference(src.path));
     }
-
     ss << "\n\n" << GenerateBuildRule(config) << "\n";
   }
 
