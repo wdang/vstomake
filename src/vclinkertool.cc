@@ -1,5 +1,5 @@
-// Copyright 2012 William Dang. 
-// 
+// Copyright 2012 William Dang.
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -13,8 +13,6 @@
 // limitations under the License.
 #include "precompiled.h"
 #include "vclinkertool.h"
-
-
 
 #define VCLINKERTOOL_IMPL X(AdditionalDependencies) \
   X(AdditionalLibraryDirectories) \
@@ -107,16 +105,9 @@
 VCLINKERTOOL_IMPL
 #undef X
 
-#define X(NAME) # NAME,
-static const char* kVCLinkerToolProperties[] = { VCLINKERTOOL_IMPL };
-#undef X
-
-VCLinkerTool::VCLinkerTool(const std::unordered_map<std::string, std::string>& tool_properties)
-  : properties(tool_properties) {}
-
-void InitVCLinkerToolProperties(std::unordered_map<std::string, std::string>* out) {
-  foreach(auto name, kVCLinkerToolProperties) {
-    std::string value("");
-    out->insert(make_pair(name, value));
+VCLinkerTool::VCLinkerTool(VCProject::Configuration& configuration) {
+  auto iter = configuration.properties.find("VCLinkerTool");
+  if (iter != configuration.properties.end()) {
+    properties = iter->second;
   }
 }

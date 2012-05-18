@@ -12,11 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #pragma once
+#include "vcproject.h"
 
-struct ToolConfiguration;
-struct VCLinkerTool{
-  VCLinkerTool(const std::unordered_map<std::string,std::string>& tool_properties);
-  VCLinkerTool(){}
+// VCLinkerTool is for convienent access
+// to the VCLinkerTool  properties of a project configuration
+struct VCLinkerTool {
+
+  // Access VCLinkerTool properties from the given
+  // project configuration
+  explicit VCLinkerTool(VCProject::Configuration& configuration);
+  
   const char* AdditionalDependencies() const;
   const char* AdditionalLibraryDirectories() const;
   const char* AdditionalManifestDependencies() const;
@@ -100,6 +105,7 @@ struct VCLinkerTool{
   const char* UseUnicodeResponseFiles() const;
   const char* VCProjectEngine() const;
   const char* Version() const;
+  
 private:
   std::unordered_map<std::string,std::string> properties;
 };
