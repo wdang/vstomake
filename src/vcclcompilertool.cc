@@ -1,5 +1,5 @@
-// Copyright 2012 William Dang. 
-// 
+// Copyright 2012 William Dang.
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -93,43 +93,9 @@
 VCCLCOMPILERTOOL_IMPL
 #undef X
 
-#define X(NAME) # NAME,
-static const char* kVCCLCompilerProperties[] = { VCCLCOMPILERTOOL_IMPL };
-#undef X
-
-#define VCPROJ_TOOL_INTERFACES X(VCALinkTool) \
-  X(VCAppVerifierTool) \
-  X(VCBscMakeTool) \
-  X(VCCLCompilerTool) \
-  X(VCCustomBuildTool) \
-  X(VCFxCopTool) \
-  X(VCLibrarianTool) \
-  X(VCLinkerTool) \
-  X(VCManagedResourceCompilerTool) \
-  X(VCManifestTool) \
-  X(VCMidlTool) \
-  X(VCNMakeTool) \
-  X(VCPostBuildEventTool) \
-  X(VCPreBuildEventTool) \
-  X(VCPreLinkEventTool) \
-  X(VCResourceCompilerTool) \
-  X(VCWebDeploymentTool) \
-  X(VCWebServiceProxyGeneratorTool) \
-  X(VCXDCMakeTool) \
-  X(VCXMLDataGeneratorTool)
-
-// tool interface strings
-#define X(NAME) # NAME,
-static const char* kVCProjectTools[] = {VCPROJ_TOOL_INTERFACES};
-#undef X
-
-
-VCCLCompilerTool::VCCLCompilerTool(const std::unordered_map<std::string, std::string>& tool_properties)
-  : properties(tool_properties) {}
-
-void InitVCCLCompilerToolProperties(std::unordered_map<std::string, std::string>* out) {
-  foreach(auto name, kVCCLCompilerProperties) {
-    std::string value("");
-    out->insert(make_pair(name, value));
+VCCLCompilerTool::VCCLCompilerTool(const VCProject::Configuration& configuration) {
+  auto iter = configuration.properties.find("VCCLCompilerTool");
+  if (iter != configuration.properties.end()) {
+    properties = iter->second;
   }
 }

@@ -12,14 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #pragma once
+#include "vcproject.h"
 
-void InitVCCLCompilerToolProperties(std::unordered_map<std::string, std::string>* out);
-
-struct ToolConfiguration;
+// VCCLCompilerTool is for convienent access
+// to the VCCLCompilerTool  properties of a project configuration
 struct VCCLCompilerTool {
-  VCCLCompilerTool(const std::unordered_map<std::string, std::string>& tool_properties);
-  VCCLCompilerTool() {}
 
+  // Access VCCLCompilerTool properties from the given
+  // project configuration
+  explicit VCCLCompilerTool(const VCProject::Configuration& configuration);
+  
   const char* AdditionalIncludeDirectories() const;
   const char* AdditionalOptions() const;
   const char* AdditionalUsingDirectories() const;
@@ -91,8 +93,6 @@ struct VCCLCompilerTool {
   const char* WholeProgramOptimization() const;
   const char* XMLDocumentationFileName() const;
 
-
  private:
-  friend struct ToolConfiguration;
   std::unordered_map<std::string, std::string> properties;
 };

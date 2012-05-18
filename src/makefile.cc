@@ -96,7 +96,8 @@ string GenerateTopLevelBuildRules(const vector<VCProject::Configuration>& config
 // TODO(wdang): provide rules for c sources
 std::string GenerateBuildRule(const VCProject::Configuration& config) {
   std::stringstream ss;
-  VCCLCompilerTool cl(config.properties.find("VCCLCompilerTool")->second);
+  VCCLCompilerTool cl(config);
+  
 
 
   auto iter = config.properties.find("VCCLCompilerTool");
