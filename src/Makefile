@@ -45,15 +45,15 @@ precompiled.h.gch: precompiled.h
 DebugWin32Prebuild:
 
 ../bin/Debug/obj/%.o: %.cc
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -include precompiled.h -fpch-preprocess -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -include precompiled.h -o $@
 ../bin/Debug/obj/%.o: %.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -include precompiled.h -fpch-preprocess -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -include precompiled.h -o $@
 ../bin/Debug/obj/%.o: %.cxx
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -include precompiled.h -fpch-preprocess -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -include precompiled.h -o $@
 
 DebugWin32Build:OutDir           :=../bin/Debug
 DebugWin32Build:IntDir           :=../bin/Debug/obj
-DebugWin32Build:CURRENT_CXXFLAGS := -I. -I../include -I../external
+DebugWin32Build:CURRENT_CXXFLAGS := -I. -I../external
 DebugWin32Build:CURRENT_CPPFLAGS := -DWIN32 -D_DEBUG -D_CONSOLE -DVSTOMAKE_RUN_TESTS
 DebugWin32Build:precompiled.h.gch $(DebugWin32Objects)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(DebugWin32Objects) -o $(TargetDir)
@@ -82,15 +82,15 @@ precompiled.h.gch: precompiled.h
 ReleaseWin32Prebuild:
 
 ../bin/Release/obj/%.o: %.cc
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -include precompiled.h -fpch-preprocess -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -include precompiled.h -o $@
 ../bin/Release/obj/%.o: %.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -include precompiled.h -fpch-preprocess -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -include precompiled.h -o $@
 ../bin/Release/obj/%.o: %.cxx
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -include precompiled.h -fpch-preprocess -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -include precompiled.h -o $@
 
 ReleaseWin32Build:OutDir           :=../bin/Release
 ReleaseWin32Build:IntDir           :=../bin/Release/obj
-ReleaseWin32Build:CURRENT_CXXFLAGS := -I. -I../include -I../external
+ReleaseWin32Build:CURRENT_CXXFLAGS := -I. -I../external
 ReleaseWin32Build:CURRENT_CPPFLAGS := -DWIN32 -DNDEBUG -D_CONSOLE
 ReleaseWin32Build:precompiled.h.gch $(ReleaseWin32Objects)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(ReleaseWin32Objects) -o $(TargetDir)
