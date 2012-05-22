@@ -35,6 +35,7 @@ utility.cc\
 vcclcompilertool.cc\
 vclinkertool.cc\
 vcproject.cc\
+vcproject_tests.cc\
 vstomake_main.cc
 
 DebugWin32Objects := $(patsubst %.cc, ../bin/Debug/obj/%.o,$(DebugWin32Sources))
@@ -74,6 +75,7 @@ utility.cc\
 vcclcompilertool.cc\
 vclinkertool.cc\
 vcproject.cc\
+vcproject_tests.cc\
 vstomake_main.cc
 
 ReleaseWin32Objects := $(patsubst %.cc, ../bin/Release/obj/%.o,$(ReleaseWin32Sources))

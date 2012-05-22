@@ -233,6 +233,10 @@
 			>
 		</File>
 		<File
+			RelativePath=".\vcproject_tests.cc"
+			>
+		</File>
+		<File
 			RelativePath=".\vstomake_main.cc"
 			>
 		</File>
