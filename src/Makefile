@@ -14,13 +14,15 @@ TargetDir          = $(OutDir)/$(ProjectName)
 #### Build rules ####
 default:
 	@echo Available build rules:
+	@echo Debug
+	@echo Release
 	@echo DebugWin32
 	@echo ReleaseWin32
 	@echo all
 	@echo clean
 all:  Debug Release
 clean:
-	rm -vf $(DebugWin32Objects) $(ReleaseWin32Objects) 
+	@rm -vf $(DebugWin32Objects) $(ReleaseWin32Objects) 
 Debug: DebugWin32
 Release: ReleaseWin32
 
@@ -43,6 +45,8 @@ precompiled.h.gch: precompiled.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c precompiled.h
 
 DebugWin32Prebuild:
+	@mkdir -p ../bin/Debug
+	@mkdir -p ../bin/Debug/obj
 
 ../bin/Debug/obj/%.o: %.cc
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -include precompiled.h -o $@
@@ -80,6 +84,8 @@ precompiled.h.gch: precompiled.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c precompiled.h
 
 ReleaseWin32Prebuild:
+	@mkdir -p ../bin/Release
+	@mkdir -p ../bin/Release/obj
 
 ../bin/Release/obj/%.o: %.cc
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -include precompiled.h -o $@

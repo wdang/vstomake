@@ -1,5 +1,5 @@
-// Copyright 2012 William Dang. 
-// 
+// Copyright 2012 William Dang.
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -36,40 +36,42 @@ using std::copy_if;
 //  Release: ReleaseWin32
 string GenerateTopLevelBuildRules(const vector<VCProject::Configuration>& configurations) {
   stringstream ss;
-  set<std::string> configs; //holds Debug, Release etc
-  set<std::string> config_names; //holds DebugWin32, ReleaseWin32 etc
+  set<std::string> general_rules; //holds Debug, Release etc
+  set<std::string> specific_rules; //holds DebugWin32, ReleaseWin32 etc
 
-  foreach(auto& config, configurations) {
-    configs.insert(config.name);
-    config_names.insert(config.name + config.platform);
+  foreach(auto& rule, configurations) {
+    general_rules.insert(rule.name);
+    specific_rules.insert(rule.name + rule.platform);
   }
 
   ss << "default:\n"
      << "\t@echo Available build rules:\n";
-  foreach(auto& config, config_names) {
-    ss << "\t@echo "  << config << "\n";
+  foreach(auto& rule, general_rules) {
+    ss << "\t@echo "  << rule << "\n";
+  }
+  foreach(auto& rule, specific_rules) {
+    ss << "\t@echo "  << rule << "\n";
   }
   ss << "\t@echo all\n"
      << "\t@echo clean\n";
 
   ss << "all: ";
 
-  foreach(auto& config, configs) {
-    ss <<" "<< config;
+  foreach(auto& rule, general_rules) {
+    ss <<" "<< rule;
   }
   ss <<"\n";
-
   ss <<"clean:\n"
-     <<"\trm -vf ";
-  foreach(auto& name, config_names) {
+     <<"\t@rm -vf ";
+  foreach(auto& name, specific_rules) {
     ss <<"$("<< name << "Objects) ";
   }
   ss <<"\n";
 
-  foreach(auto& config, configs) {
-    ss << config << ":";
-    foreach(auto& name, config_names) {
-      if (name.find(config) != string::npos) {
+  foreach(auto& rule, general_rules) {
+    ss << rule << ":";
+    foreach(auto& name, specific_rules) {
+      if (name.find(rule) != string::npos) {
         ss <<" "<< name;
       }
     }
@@ -97,7 +99,7 @@ string GenerateTopLevelBuildRules(const vector<VCProject::Configuration>& config
 std::string GenerateBuildRule(const VCProject::Configuration& config) {
   std::stringstream ss;
   VCCLCompilerTool cl(config);
-  
+
 
 
   auto iter = config.properties.find("VCCLCompilerTool");
@@ -153,8 +155,11 @@ std::string GenerateBuildRule(const VCProject::Configuration& config) {
 
     string main_build_rule(variable);
     main_build_rule.append(":");
-    // TODO(wdang): prebuild build rule
-    ss << prebuild_rule << ":\n\n";
+
+    // prebuild rule
+    ss << prebuild_rule << ":\n"
+       << "\t@mkdir -p " << ToUnixPaths(config.output_dir) << "\n"
+       << "\t@mkdir -p " << ToUnixPaths(config.intermediate_dir) << "\n\n";
 
 
     // .o build rule, accommodate for all c++ extensions
@@ -208,27 +213,27 @@ Makefile::Makefile(const VCProject& project) {
 
   foreach(auto& config, project.configurations) {
     // Exclude non c++ source files
-    static const char* kCPPExtensions[] = {".cc",".cpp",".cxx",".c++",".C",".cp",".CPP"};  
-      
+    static const char* kCPPExtensions[] = {".cc", ".cpp", ".cxx", ".c++", ".C", ".cp", ".CPP"};
+
     vector<VCProject::File> sources;
     sources.reserve(config.files.size());
-       
-    copy_if(config.files.begin(),config.files.end(),std::back_inserter(sources),
-    [](const VCProject::File& file)->bool{
-      foreach(auto* ext, kCPPExtensions){
-        if(file.path.find(ext) != string::npos){
-          return true;
-        }
-      }
-      return false;
-    });
-    
-    
+
+    copy_if(config.files.begin(), config.files.end(), std::back_inserter(sources),
+        [] (const VCProject::File& file)->bool {
+          foreach(auto* ext, kCPPExtensions) {
+            if (file.path.find(ext) != string::npos) {
+              return true;
+            }
+          }
+          return false;
+        });
+
+
     ss << "#### Configuration: " << config.name     <<" ####\n"
        << "####      Platform: " << config.platform <<" ####\n"
        << config.name << config.platform <<"Sources :=";
     foreach(auto& src, sources) {
-     ss << "\\\n"<< ToUnixPaths(StripCurrentDirReference(src.path));
+      ss << "\\\n"<< ToUnixPaths(StripCurrentDirReference(src.path));
     }
     ss << "\n\n" << GenerateBuildRule(config) << "\n";
   }
