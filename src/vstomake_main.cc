@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
   }
 
   ifstream fs(argv[1], std::ios::in | std::ios::binary | std::ios::ate);
-  const int64_t size = fs.tellg();
+  const std::streamsize size = fs.tellg();
 
   if (size  == -1) {
     string message("Invalid file: ");
