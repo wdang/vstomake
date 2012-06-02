@@ -14,6 +14,7 @@
 #include "precompiled.h"
 #include "makefile.h"
 #include "vcproject.h"
+#include "vclinkertool.h"
 #include "utility.h"
 #include "vcclcompilertool.h"
 #include <set>
