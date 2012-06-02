@@ -22,8 +22,10 @@ VCCLCompilerTool::VCCLCompilerTool(const VCProject::Configuration& configuration
   }
 }
 
+VCCLCompilerTool::Enum GetEnum(const std::string&){
+  return VCCLCompilerTool::Enum_Unknown;
+}
 
-VCCLCompilerTool::Enum GetEnum(const std::string&){return VCCLCompilerTool::Enum_Unknown;}
 // Implemented via excessive X-macros ;)
 // Implemention for members returning a VCCLCompilerTool::Enum 
 #define VCCLCOMPILERTOOL_ENUM_ACCESSORS X(AssemblerOutput)\
