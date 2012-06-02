@@ -27,6 +27,25 @@ using std::unordered_map;
 using std::vector;
 using std::copy_if;
 
+string GenerateCXXFlags(const string&, const string&,const VCCLCompilerTool& cl) {
+  stringstream ss("");
+
+  if (strcmp(cl.AdditionalIncludeDirectories(), "") != 0) {
+    ss << "-I" << Replace(ToUnixPaths(cl.AdditionalIncludeDirectories()), ";", " -I");
+  }
+
+  return ss.str();
+}
+
+string GenerateCPPFlags(const std::string&, const std::string&, const VCCLCompilerTool& cl) {
+  stringstream ss;
+  ss << "-D" << Replace(cl.PreprocessorDefinitions(), ";", " -D");
+  return ss.str();
+}
+
+string GenerateARFlags(const VCProject::Configuration& config, const VCCLCompilerTool& cl);
+string GenerateLDFlags(const VCProject::Configuration& config, const VCLinkerTool& link);
+
 //  The top level build rules are separated by configuration then by platform.
 //  For a project with a Debug and Release configuration that
 //  is targeting "Win32", GenerateTopLevelBuildRules will return:
@@ -82,6 +101,7 @@ string GenerateTopLevelBuildRules(const vector<VCProject::Configuration>& config
   return ss.str();
 }
 
+
 // Build rules are separated by configuration and platform.
 // The generated Makefile variables will have the following convention:
 // ConfigurationPlatformVariable
@@ -123,22 +143,26 @@ std::string GenerateBuildRule(const VCProject::Configuration& config) {
 
 
     // configuration specific variables
-    string variable(config.name + config.platform);
-    string build(variable);
+    string rule_prefix(config.name + config.platform);
+    string build(rule_prefix);
     build.append("Build");
 
-    std::string sources(variable);
+    string sources(rule_prefix);
     sources.append("Sources");
 
-    std::string objects(variable);
+    string objects(rule_prefix);
     objects.append("Objects");
-
-    std::string objects_o(ToUnixPaths(config.intermediate_dir));
+    
+    string intdir(ToUnixPaths(config.intermediate_dir));
+    string outdir(ToUnixPaths(config.output_dir));
+    
+    
+    string objects_o(ToUnixPaths(config.intermediate_dir));
     objects_o.append("/%.o");
     // source to .o pathsubst
-    ss << objects << " := $(patsubst %.cc, " << objects_o << ",$("<< sources <<"))\n"
-       << objects << " := $(patsubst %.cpp," << objects_o << ",$("<< objects <<"))\n"
-       << objects << " := $(patsubst %.cxx," << objects_o << ",$("<< objects <<"))\n\n";
+    ss << objects << " := $(patsubst %.cc," << intdir << "/%.o,$(notdir $("<< sources <<")))\n"
+       << objects << " := $(patsubst %.cpp,"<< intdir << "/%.o,$(" << objects <<"))\n"
+       << objects << " := $(patsubst %.cxx,"<< intdir << "/%.o,$(" << objects <<"))\n\n";
 
     if (using_pch) {
       ss << gch << ": " << pch << "\n"
@@ -147,43 +171,43 @@ std::string GenerateBuildRule(const VCProject::Configuration& config) {
 
 
     // build rules
-    std::string prebuild_rule(variable);
+    std::string prebuild_rule(rule_prefix);
     prebuild_rule.append("Prebuild");
 
-    string build_rule(variable);
+    string build_rule(rule_prefix);
     build_rule.append("Build:");
 
-    string main_build_rule(variable);
+    string main_build_rule(rule_prefix);
     main_build_rule.append(":");
 
     // prebuild rule
     ss << prebuild_rule << ":\n"
-       << "\t@mkdir -p " << ToUnixPaths(config.output_dir) << "\n"
-       << "\t@mkdir -p " << ToUnixPaths(config.intermediate_dir) << "\n\n";
-
-
-    // .o build rule, accommodate for all c++ extensions
-    ss << objects_o << ": %.cc\n"
-       << "\t$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< "<< pch_include <<" -o $@\n"
-       << objects_o << ": %.cpp\n"
-       << "\t$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< "<< pch_include <<" -o $@\n"
-       << objects_o << ": %.cxx\n"
-       << "\t$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< "<< pch_include <<" -o $@\n\n";
+       << "\t@mkdir -p " << outdir << "\n"
+       << "\t@mkdir -p " << intdir << "\n\n";   
 
     // Main build rule
-    ss << build_rule << "OutDir           :=" << ToUnixPaths(config.output_dir) << "\n"
-       << build_rule << "IntDir           :=" << ToUnixPaths(config.intermediate_dir) << "\n"
-       << build_rule << "CURRENT_CXXFLAGS := -I. -I" << Replace(ToUnixPaths(cl.AdditionalIncludeDirectories()), ";", " -I") << "\n"
-       << build_rule << "CURRENT_CPPFLAGS := -D" << Replace(cl.PreprocessorDefinitions(), ";", " -D") << "\n"
-       << build_rule << gch <<" $(" << objects << ")\n"
-       << "\t$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(" << objects << ") -o $(TargetDir)\n\n";
-
-    //
-    ss << main_build_rule << prebuild_rule << " " << build << "\n\n";
-
+    ss << build_rule << "CurrentOutDir    :=" << outdir << "\n"
+       << build_rule << "CurrentIntDir    :=" << intdir << "\n"
+       << build_rule << "CURRENT_CXXFLAGS :=" << GenerateCXXFlags(config.name,config.platform,cl) << "\n"
+       << build_rule << "CURRENT_CPPFLAGS :=" << GenerateCPPFlags(config.name,config.platform,cl) << "\n"       
+       << build_rule << gch <<" $(" << objects << ")\n";
+     
+    
+    switch (config.type) {
+    case VCProject::Type_Application:
+      ss << "\t$(CXX) $(CPPFLAGS) $(CXXFLAGS) "<<" $(" << objects << ")" << " -o $(TargetDir)\n\n";
+      break;
+    case VCProject::Type_DynamicLibrary:
+      ss << "\t$(CXX) -shared $(CPPFLAGS) $(CXXFLAGS) "<<" $(" << objects << ")" <<" -o $(OutDir)/lib$(ProjectName).so\n\n";
+      break;
+    case VCProject::Type_StaticLibrary:
+      ss << "\t$(AR) $(ARFLAGS) $(OutDir)/lib$(ProjectName).a " <<" $(" << objects << ")\n\n";
+      break;
+    }
 
 
     // todo post-build commands
+    ss << main_build_rule << prebuild_rule << " " << build << "\n\n";
   }
   return ss.str();
 }
@@ -196,20 +220,56 @@ Makefile::Makefile(const VCProject& project) {
 
   std::stringstream ss("Makefile.mk");
 
+
+  // TODOD(wdang): organize predefined flags
+  std::stringstream cflags("");
+  std::stringstream cppflags("");
+  std::stringstream cxxflags("");
+  std::stringstream ldflags("");
+  std::stringstream arflags("");
+
+
+
+  cflags << "$(CURRENT_CFLAGS)";
+
+  cppflags << "$(CURRENT_CPPFLAGS)";
+
+
+  size_t found = project.path.find_last_of("/\\");
+  std::string project_dir(".");
+  if (found != string::npos) {
+    project_dir.assign(project.path.substr(0, found));
+  }
+  
+  cxxflags << "--std=gnu++0x"
+           << " -I" << ToUnixPaths(project_dir)
+           << " $(CURRENT_CXXFLAGS)";
+
+  ldflags << "$(CURRENT_LDFLAGS)";
+
+  arflags << "-rcs "
+          << "$(CURRENT_ARFLAGS)";
+
+
+
   ss << "#### This Makefile has been machine generated from vstomake 0.1.0 ####\n\n"
      << "#### Builtin variables ####\n"
-     << "CFLAGS   += $(CURRENT_CFLAGS)\n"
-     << "CPPFLAGS += $(CURRENT_CPPFLAGS)\n"
-     << "CXXFLAGS += $(CURRENT_CXXFLAGS) -std=gnu++0x\n"
-     << "LDFLAGS  +=\n"
-     << "ARFLAGS  +=\n\n"
+     << "CFLAGS   += "<< cflags.str()   << "\n"
+     << "CPPFLAGS += "<< cppflags.str() << "\n"
+     << "CXXFLAGS += "<< cxxflags.str() << "\n"
+     << "LDFLAGS  += "<< ldflags.str()  << "\n"
+     << "ARFLAGS   = "<< arflags.str()  << "\n"
 
-     << "#### Project variables ####\n"
+     << "\n#### Project variables ####\n"
      << "ProjectName       := "<<project.name<<"\n"
-     << "TargetDir          = $(OutDir)/$(ProjectName)\n\n";
+     << "TargetDir          = $(OutDir)/$(ProjectName)\n"
+     << "OutDir             = $(CurrentOutDir)\n"
+     << "IntDir             = $(CurrentIntDir)\n";
 
-  ss << "#### Build rules ####\n"
+  ss << "\n#### Build rules ####\n"
      << GenerateTopLevelBuildRules(project.configurations);
+
+
 
   foreach(auto& config, project.configurations) {
     // Exclude non c++ source files
@@ -232,10 +292,29 @@ Makefile::Makefile(const VCProject& project) {
     ss << "#### Configuration: " << config.name     <<" ####\n"
        << "####      Platform: " << config.platform <<" ####\n"
        << config.name << config.platform <<"Sources :=";
+    
+    set<string> src_paths;
+    
     foreach(auto& src, sources) {
+      string path(ToUnixPaths(StripCurrentDirReference(src.path)));
+      string path_part(path.substr(0,path.find_last_of('/')+1));
+      string ext(path.substr(path.find_last_of('.')));
+      
+      string src_wildcard("");
+      src_wildcard.reserve(path.size());
+      src_wildcard.append(path_part);
+      src_wildcard.append("%");
+      src_wildcard.append(ext);
+      src_paths.insert(src_wildcard);
+      
       ss << "\\\n"<< ToUnixPaths(StripCurrentDirReference(src.path));
     }
-    ss << "\n\n" << GenerateBuildRule(config) << "\n";
+   ss << "\n\n";
+   foreach(auto& src_wildcard, src_paths){
+     ss << ToUnixPaths(config.intermediate_dir) << "/%.o : "<< src_wildcard <<"\n"
+     << "\t$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $(IntDir)/$(notdir $@)\n";
+   }
+   ss << "\n\n" << GenerateBuildRule(config) << "\n";
   }
 
   ss << std::endl;
