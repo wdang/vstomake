@@ -1,5 +1,5 @@
-// Copyright 2012 William Dang. 
-// 
+// Copyright 2012 William Dang.
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -17,7 +17,7 @@
 // VCCLCompilerTool is for convienent access
 // to the VCCLCompilerTool properties of a project configuration.
 struct VCCLCompilerTool {
-  
+
   // All possible enumeration values
   // used by VCCLCompilerTool
   enum Enum {
@@ -71,81 +71,81 @@ struct VCCLCompilerTool {
     Enum_alignEightBytes,
     Enum_alignSixteenBytes
   };
-  
+
   // Access VCCLCompilerTool properties from the given
   // project configuration
   explicit VCCLCompilerTool(const VCProject::Configuration& configuration);
-  
+
   // The following accessors return "" to represent an empty value
   const char* AdditionalIncludeDirectories() const;
   const char* AdditionalOptions() const;
   const char* AdditionalUsingDirectories() const;
   const char* AssemblerListingLocation() const;
-  Enum AssemblerOutput() const;
-  Enum BasicRuntimeChecks() const;
-  Enum BrowseInformation() const;
+  Enum        AssemblerOutput() const;
+  Enum        BasicRuntimeChecks() const;
+  Enum        BrowseInformation() const;
   const char* BrowseInformationFile() const;
-  bool BufferSecurityCheck() const;
-  Enum CallingConvention() const;
-  Enum CompileAs() const;
-  Enum CompileAsManaged() const;
-  bool CompileOnly() const;
-  Enum DebugInformationFormat() const;
-  bool DefaultCharIsUnsigned() const;
-  bool Detect64BitPortabilityProblems() const;
-  bool DisableLanguageExtensions() const;
+  bool        BufferSecurityCheck() const;
+  Enum        CallingConvention() const;
+  Enum        CompileAs() const;
+  Enum        CompileAsManaged() const;
+  bool        CompileOnly() const;
+  Enum        DebugInformationFormat() const;
+  bool        DefaultCharIsUnsigned() const;
+  bool        Detect64BitPortabilityProblems() const;
+  bool        DisableLanguageExtensions() const;
   const char* DisableSpecificWarnings() const;
-  Enum EnableEnhancedInstructionSet() const;
-  bool EnableFiberSafeOptimizations() const;
-  bool EnableFunctionLevelLinking() const;
-  bool EnableIntrinsicFunctions() const;
-  bool EnablePREfast() const;
-  Enum ErrorReporting() const;
-  Enum ExceptionHandling() const;
+  Enum        EnableEnhancedInstructionSet() const;
+  bool        EnableFiberSafeOptimizations() const;
+  bool        EnableFunctionLevelLinking() const;
+  bool        EnableIntrinsicFunctions() const;
+  bool        EnablePREfast() const;
+  Enum        ErrorReporting() const;
+  Enum        ExceptionHandling() const;
   const char* ExecutionBucket() const;
-  bool ExpandAttributedSource() const;
-  Enum FavorSizeOrSpeed() const;
-  bool FloatingPointExceptions() const;
-  Enum floatingPointModel() const;
-  bool ForceConformanceInForLoopScope() const;
+  bool        ExpandAttributedSource() const;
+  Enum        FavorSizeOrSpeed() const;
+  bool        FloatingPointExceptions() const;
+  Enum        floatingPointModel() const;
+  bool        ForceConformanceInForLoopScope() const;
   const char* ForcedIncludeFiles() const;
   const char* ForcedUsingFiles() const;
   const char* FullIncludePath() const;
-  Enum GeneratePreprocessedFile() const;
-  bool GenerateXMLDocumentationFiles() const;
-  bool IgnoreStandardIncludePath() const;
-  Enum InlineFunctionExpansion() const;
-  bool KeepComments() const;
-  bool MinimalRebuild() const;
+  Enum        GeneratePreprocessedFile() const;
+  bool        GenerateXMLDocumentationFiles() const;
+  bool        IgnoreStandardIncludePath() const;
+  Enum        InlineFunctionExpansion() const;
+  bool        KeepComments() const;
+  bool        MinimalRebuild() const;
   const char* ObjectFile() const;
   const char* OmitDefaultLibName() const;
-  bool OmitFramePointers() const;
+  bool        OmitFramePointers() const;
   const char* OpenMP() const;
-  Enum Optimization() const;
+  Enum        Optimization() const;
   const char* PrecompiledHeaderFile() const;
   const char* PrecompiledHeaderThrough() const;
   const char* PreprocessorDefinitions() const;
   const char* ProgramDataBaseFileName() const;
-  Enum RuntimeLibrary() const;
-  bool RuntimeTypeInfo() const;
-  bool ShowIncludes() const;
-  bool SmallerTypeCheck() const;
-  bool StringPooling() const;
-  Enum StructMemberAlignment() const;
+  Enum        RuntimeLibrary() const;
+  bool        RuntimeTypeInfo() const;
+  bool        ShowIncludes() const;
+  bool        SmallerTypeCheck() const;
+  bool        StringPooling() const;
+  Enum        StructMemberAlignment() const;
   const char* SuppressStartupBanner() const;
   const char* ToolKind() const;
   const char* toolName() const;
   const char* ToolPath() const;
-  bool TreatWChar_tAsBuiltInType() const;
-  bool UndefineAllPreprocessorDefinitions() const;
+  bool        TreatWChar_tAsBuiltInType() const;
+  bool        UndefineAllPreprocessorDefinitions() const;
   const char* UndefinePreprocessorDefinitions() const;
   const char* UseFullPaths() const;
-  Enum UsePrecompiledHeader() const;
-  bool UseUnicodeResponseFiles() const;
+  Enum        UsePrecompiledHeader() const;
+  bool        UseUnicodeResponseFiles() const;
   const char* VCProjectEngine() const;
-  bool WarnAsError() const;
-  Enum WarningLevel() const;
-  bool WholeProgramOptimization() const;
+  bool        WarnAsError() const;
+  Enum        WarningLevel() const;
+  bool        WholeProgramOptimization() const;
   const char* XMLDocumentationFileName() const;
 
  private:
