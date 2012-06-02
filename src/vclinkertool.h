@@ -1,5 +1,5 @@
-// Copyright 2012 William Dang. 
-// 
+// Copyright 2012 William Dang.
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -17,95 +17,169 @@
 // VCLinkerTool is for convienent access
 // to the VCLinkerTool  properties of a project configuration
 struct VCLinkerTool {
+  enum Enum {
+    Enum_Unknown,
+    Enum_addrAwareDefault,
+    Enum_addrAwareLarge,
+    Enum_addrAwareNoLarge,
+    Enum_CLRImageTypeDefault,
+    Enum_CLRImageTypeIJW,
+    Enum_CLRImageTypePure,
+    Enum_CLRImageTypeSafe,
+    Enum_CLRThreadAttributeMTA,
+    Enum_CLRThreadAttributeNone,
+    Enum_CLRThreadAttributeSTA,
+    Enum_driver,
+    Enum_driverDefault,
+    Enum_driverUpOnly,
+    Enum_driverWDM,
+    Enum_LinkTimeCodeGenerationOptionDefault,
+    Enum_LinkTimeCodeGenerationOptionInstrument,
+    Enum_LinkTimeCodeGenerationOptionOptimize,
+    Enum_LinkTimeCodeGenerationOptionUpdate,
+    Enum_LinkTimeCodeGenerationOptionUse,
+    Enum_linkAssemblyDebugDefault,
+    Enum_linkAssemblyDebugDisable,
+    Enum_linkAssemblyDebugFull,
+    Enum_linkFixedBaseAddressDefault,
+    Enum_linkFixedBaseAddressNo,
+    Enum_linkFixedBaseAddressYes,
+    Enum_linkIncrementalDefault,
+    Enum_linkIncrementalNo,
+    Enum_linkIncrementalYes,
+    Enum_linkProgressAll,
+    Enum_linkProgressLibs,
+    Enum_linkProgressNotSet,
+    Enum_linkerErrorReportingDefault,
+    Enum_linkerErrorReportingPrompt,
+    Enum_linkerErrorReportingQueue,
+    Enum_machineAM33,
+    Enum_machineAMD64,
+    Enum_machineARM,
+    Enum_machineEBC,
+    Enum_machineIA64,
+    Enum_machineM32R,
+    Enum_machineMIPS,
+    Enum_machineMIPS16,
+    Enum_machineMIPSFPU,
+    Enum_machineMIPSFPU16,
+    Enum_machineMIPSR41XX,
+    Enum_machineNotSet,
+    Enum_machineSH3,
+    Enum_machineSH3DSP,
+    Enum_machineSH4,
+    Enum_machineSH5,
+    Enum_machineTHUMB,
+    Enum_machineX86,
+    Enum_optFolding,
+    Enum_optFoldingDefault,
+    Enum_optNoFolding,
+    Enum_optNoReferences,
+    Enum_optReferences,
+    Enum_optReferencesDefault,
+    Enum_optWin98Default,
+    Enum_optWin98No,
+    Enum_optWin98Yes,
+    Enum_subSystemConsole,
+    Enum_subSystemEFIApplication,
+    Enum_subSystemEFIBootService,
+    Enum_subSystemEFIROM,
+    Enum_subSystemEFIRuntime,
+    Enum_subSystemNative,
+    Enum_subSystemNotSet,
+    Enum_subSystemPosix,
+    Enum_subSystemWindows,
+    Enum_subSystemWindowsCE,
+    Enum_termSvrAwareDefault,
+    Enum_termSvrAwareNo,
+    Enum_termSvrAwareYes,
+  };
 
   // Access VCLinkerTool properties from the given
   // project configuration
   explicit VCLinkerTool(VCProject::Configuration& configuration);
-  
+
+  // The following accessors return "" or Enum_Unknown or false 
+  // to represent an empty value
   const char* AdditionalDependencies() const;
   const char* AdditionalLibraryDirectories() const;
   const char* AdditionalManifestDependencies() const;
   const char* AdditionalOptions() const;
   const char* AddModuleNamesToAssembly() const;
-  const char* AllowIsolation() const;
-  const char* AssemblyDebug() const;
+  bool        AllowIsolation() const;
+  Enum        AssemblyDebug() const;
   const char* AssemblyLinkResource() const;
   const char* BaseAddress() const;
-  const char* CLRImageType() const;
-  const char* CLRThreadAttribute() const;
-  const char* CLRUnmanagedCodeCheck() const;
-  const char* DataExecutionPrevention() const;
+  Enum        CLRImageType() const;
+  Enum        CLRThreadAttribute() const;
+  bool        CLRUnmanagedCodeCheck() const;
   const char* DelayLoadDLLs() const;
-  const char* DelaySign() const;
-  const char* driver() const;
+  bool        DelaySign() const;
+  Enum        driver() const;
   const char* EmbedManagedResourceFile() const;
-  const char* EnableCOMDATFolding() const;
-  const char* EnableUAC() const;
+  Enum        EnableCOMDATFolding() const;
   const char* EntryPointSymbol() const;
-  const char* ErrorReporting() const;
+  Enum        ErrorReporting() const;
   const char* ExecutionBucket() const;
-  const char* FixedBaseAddress() const;
+  Enum        FixedBaseAddress() const;
   const char* ForceSymbolReferences() const;
   const char* FunctionOrder() const;
-  const char* GenerateDebugInformation() const;
-  const char* GenerateManifest() const;
-  const char* GenerateMapFile() const;
+  bool        GenerateDebugInformation() const;
+  bool        GenerateManifest() const;
+  bool        GenerateMapFile() const;
   const char* HeapCommitSize() const;
   const char* HeapReserveSize() const;
-  const char* IgnoreAllDefaultLibraries() const;
+  bool        IgnoreAllDefaultLibraries() const;
   const char* IgnoreDefaultLibraryNames() const;
-  const char* IgnoreEmbeddedIDL() const;
-  const char* IgnoreImportLibrary() const;
+  bool        IgnoreEmbeddedIDL() const;
+  bool        IgnoreImportLibrary() const;
   const char* ImportLibrary() const;
   const char* KeyContainer() const;
   const char* KeyFile() const;
-  const char* LargeAddressAware() const;
-  const char* LinkDLL() const;
-  const char* LinkIncremental() const;
-  const char* LinkLibraryDependencies() const;
-  const char* LinkTimeCodeGeneration() const;
+  Enum        LargeAddressAware() const;
+  bool        LinkDLL() const;
+  Enum        LinkIncremental() const;
+  bool        LinkLibraryDependencies() const;
+  Enum        LinkTimeCodeGeneration() const;
   const char* ManifestFile() const;
-  const char* MapExports() const;
+  bool        MapExports() const;
   const char* MapFileName() const;
   const char* MergedIDLBaseFileName() const;
   const char* MergeSections() const;
   const char* MidlCommandFile() const;
   const char* ModuleDefinitionFile() const;
-  const char* OptimizeForWindows98() const;
-  const char* OptimizeReferences() const;
+  Enum        OptimizeForWindows98() const;
+  Enum        OptimizeReferences() const;
   const char* OutputFile() const;
-  const char* PerUserRedirection() const;
-  const char* Profile() const;
+  bool        Profile() const;
   const char* ProfileGuidedDatabase() const;
   const char* ProgramDatabaseFile() const;
-  const char* RandomizedBaseAddress() const;
-  const char* RegisterOutput() const;
-  const char* ResourceOnlyDLL() const;
-  const char* SetChecksum() const;
-  const char* ShowProgress() const;
+  bool        RegisterOutput() const;
+  bool        ResourceOnlyDLL() const;
+  bool        SetChecksum() const;
+  Enum        ShowProgress() const;
   const char* StackCommitSize() const;
   const char* StackReserveSize() const;
   const char* StripPrivateSymbols() const;
-  const char* SubSystem() const;
-  const char* SupportUnloadOfDelayLoadedDLL() const;
-  const char* SuppressStartupBanner() const;
-  const char* SwapRunFromCD() const;
-  const char* SwapRunFromNet() const;
-  const char* TargetMachine() const;
-  const char* TerminalServerAware() const;
+  Enum        SubSystem() const;
+  bool        SupportUnloadOfDelayLoadedDLL() const;
+  bool        SuppressStartupBanner() const;
+  bool        SwapRunFromCD() const;
+  bool        SwapRunFromNet() const;
+  Enum        TargetMachine() const;
+  Enum        TerminalServerAware() const;
   const char* ToolKind() const;
   const char* toolName() const;
   const char* ToolPath() const;
-  const char* TurnOffAssemblyGeneration() const;
+  bool        TurnOffAssemblyGeneration() const;
   const char* TypeLibraryFile() const;
   const char* TypeLibraryResourceID() const;
-  const char* UACExecutionLevel() const;
-  const char* UACUIAccess() const;
-  const char* UseLibraryDependencyInputs() const;
-  const char* UseUnicodeResponseFiles() const;
+  bool        UseLibraryDependencyInputs() const;
+  bool        UseUnicodeResponseFiles() const;
   const char* VCProjectEngine() const;
   const char* Version() const;
-  
-private:
-  std::unordered_map<std::string,std::string> properties;
+
+
+ private:
+  std::unordered_map<std::string, std::string> properties;
 };
