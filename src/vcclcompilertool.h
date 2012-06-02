@@ -22,61 +22,123 @@ struct VCCLCompilerTool {
   // used by VCCLCompilerTool
   enum Enum {
     Enum_Unknown,
+
+    Enum_asmListingOption,
     Enum_asmListingNone,
     Enum_asmListingAssemblyOnly,
     Enum_asmListingAsmMachineSrc,
     Enum_asmListingAsmMachine,
     Enum_asmListingAsmSrc,
+
+    Enum_basicRuntimeCheckOption,
     Enum_runtimeBasicCheckNone,
     Enum_runtimeCheckStackFrame,
     Enum_runtimeCheckUninitVariables,
     Enum_runtimeBasicCheckAll,
+
+    Enum_browseInfoOption,
     Enum_brInfoNone,
     Enum_brAllInfo,
     Enum_brNoLocalSymbols,
+
+    Enum_callingConventionOption,
+    Enum_callConventionCDecl,
+    Enum_callConventionFastCall,
+    Enum_callConventionStdCall,
+
+    Enum_CompileAsOptions,
+    Enum_compileAsDefault,
+    Enum_compileAsC,
+    Enum_compileAsCPlusPlus,
+
+    Enum_compileAsManagedOptions,
     Enum_managedNotSet,
     Enum_managedAssembly,
     Enum_managedAssemblyPure,
     Enum_managedAssemblySafe,
     Enum_managedAssemblyOldSyntax,
-    Enum_cppExceptionHandlingNo,
-    Enum_cppExceptionHandlingYes,
-    Enum_cppExceptionHandlingYesWithSEH,
+
+    Enum_debugOption,
     Enum_debugDisabled,
     Enum_debugOldStyleInfo,
     Enum_debugEnabled,
     Enum_debugEditAndContinue,
+
+    Enum_enhancedInstructionSetType,
     Enum_enhancedInstructionSetTypeNotSet,
     Enum_enhancedInstructionSetTypeSIMD,
     Enum_enhancedInstructionSetTypeSIMD2,
+
+    Enum_compilerErrorReportingType,
+    Enum_compilerErrorReportingDefault,
+    Enum_compilerErrorReportingPrompt,
+    Enum_compilerErrorReportingQueue,
+
+    Enum_cppExceptionHandling,
+    Enum_cppExceptionHandlingNo,
+    Enum_cppExceptionHandlingYes,
+    Enum_cppExceptionHandlingYesWithSEH,
+
+    Enum_favorSizeOrSpeedOption,
+    Enum_favorNone,
+    Enum_favorSpeed,
+    Enum_favorSize,
+
+    Enum_preprocessOption,
+    Enum_preprocessNo,
+    Enum_preprocessYes,
+    Enum_preprocessNoLineNumbers,
+
+    Enum_inlineExpansionOption,
+    Enum_expandDisable,
+    Enum_expandOnlyInline,
+    Enum_expandAnySuitable,
+
+    Enum_optimizeOption,
     Enum_optimizeDisabled,
     Enum_optimizeMinSpace,
     Enum_optimizeMaxSpeed,
     Enum_optimizeFull,
     Enum_optimizeCustom,
-    Enum_pchNone,
-    Enum_pchCreateUsingSpecific,
-    Enum_pchUseUsingSpecific,
-    Enum_preprocessNo,
-    Enum_preprocessYes,
-    Enum_preprocessNoLineNumbers,
+
+    Enum_runtimeLibraryOption,
     Enum_rtMultiThreaded,
     Enum_rtMultiThreadedDebug,
     Enum_rtMultiThreadedDLL,
     Enum_rtMultiThreadedDebugDLL,
+
+    Enum_structMemberAlignOption,
     Enum_alignNotSet,
     Enum_alignSingleByte,
     Enum_alignTwoBytes,
     Enum_alignFourBytes,
     Enum_alignEightBytes,
-    Enum_alignSixteenBytes
+    Enum_alignSixteenBytes,
+
+    Enum_pchOption,
+    Enum_pchNone,
+    Enum_pchCreateUsingSpecific,
+    Enum_pchUseUsingSpecific,
+
+    Enum_warningLevelOption,
+    Enum_warningLevel_0,
+    Enum_warningLevel_1,
+    Enum_warningLevel_2,
+    Enum_warningLevel_3,
+    Enum_warningLevel_4,
+
+    Enum_floatingPointModel,
+    Enum_FloatingPointPrecise,
+    Enum_FloatingPointStrict,
+    Enum_FloatingPointFast,
   };
 
   // Access VCCLCompilerTool properties from the given
   // project configuration
   explicit VCCLCompilerTool(const VCProject::Configuration& configuration);
-
-  // The following accessors return "" to represent an empty value
+   
+  // The following accessors return "" or Enum_Unknown or false 
+  // to represent an empty value
   const char* AdditionalIncludeDirectories() const;
   const char* AdditionalOptions() const;
   const char* AdditionalUsingDirectories() const;
@@ -106,7 +168,7 @@ struct VCCLCompilerTool {
   bool        ExpandAttributedSource() const;
   Enum        FavorSizeOrSpeed() const;
   bool        FloatingPointExceptions() const;
-  Enum        floatingPointModel() const;
+  Enum        FloatingPointModel() const;
   bool        ForceConformanceInForLoopScope() const;
   const char* ForcedIncludeFiles() const;
   const char* ForcedUsingFiles() const;
@@ -120,7 +182,7 @@ struct VCCLCompilerTool {
   const char* ObjectFile() const;
   const char* OmitDefaultLibName() const;
   bool        OmitFramePointers() const;
-  const char* OpenMP() const;
+  bool        OpenMP() const;
   Enum        Optimization() const;
   const char* PrecompiledHeaderFile() const;
   const char* PrecompiledHeaderThrough() const;
@@ -132,7 +194,7 @@ struct VCCLCompilerTool {
   bool        SmallerTypeCheck() const;
   bool        StringPooling() const;
   Enum        StructMemberAlignment() const;
-  const char* SuppressStartupBanner() const;
+  bool        SuppressStartupBanner() const;
   const char* ToolKind() const;
   const char* toolName() const;
   const char* ToolPath() const;
