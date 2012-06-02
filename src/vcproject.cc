@@ -30,11 +30,6 @@ using std::unordered_map;
 using namespace rapidxml;
 
 
-// Returns the length of the given array.
-// compile time assertion with "ERROR_Non_Array_Type"
-// if x is not a static array.
-#define ARRAY_COUNT(x) (sizeof(ERROR_Non_Array_Type(x)))
-
 namespace {
 typedef rapidxml::xml_document<>                     XMLDocument;
 typedef rapidxml::xml_node<>                         XMLNode;
@@ -42,25 +37,10 @@ typedef rapidxml::xml_attribute<>                    XMLAttribute;
 typedef std::vector<rapidxml::xml_node<>*>           XMLNodeList;
 typedef std::vector<std::string>                     StringList;
 typedef std::unordered_map<std::string, std::string> PropertyMap;
-std::unordered_map<std::string, StringList> PropertyMappings;
-
-// ARRAY_COUNT implementation
-#if defined(_WIN64) || defined(__LP64__) || defined(_M_AMD64)
-template<class ArrayType, size_t N>
-char(__unaligned &ERROR_Non_Array_Type(ArrayType(&)[N]))[N];
-#endif
-
-// GCC wants both const and non-const versions
-#ifndef _MSC_VER
-template<class ArrayType, size_t N>
-char(&ERROR_Non_Array_Type(const ArrayType(&)[N]))[N];
-#endif
-
-template<class ArrayType, size_t N>
-char(&ERROR_Non_Array_Type(ArrayType(&)[N]))[N];
 }
 
-
+// GMacroMap holds the mappings of kProjectMacros to their values
+// from the vcproj properties
 static unordered_map<string, string> GMacroMap;
 static const char* const kProjectMacros[] = {
   "$(ConfigurationName)",
@@ -107,66 +87,6 @@ static const char* const kProjectMacros[] = {
   "$(WebDeployPath)",
   "$(WebDeployRoot)",
 };
-
-
-// VCProjParser consists of 2 state machines that
-// handle node transistions for the following nodes:
-// -Configurations
-// -Files
-//
-// The Configurations state machine parses the tool properties
-// found in the vcproj file
-// see "Interfaces" table on:
-// http://msdn.microsoft.com/en-us/library/microsoft.visualstudio.vcprojectengine(VS.90).aspx
-#define VCPROJ_TOOL_INTERFACES X(VCALinkTool) \
-  X(VCAppVerifierTool) \
-  X(VCBscMakeTool) \
-  X(VCCLCompilerTool) \
-  X(VCCustomBuildTool) \
-  X(VCFxCopTool) \
-  X(VCLibrarianTool) \
-  X(VCLinkerTool) \
-  X(VCManagedResourceCompilerTool) \
-  X(VCManifestTool) \
-  X(VCMidlTool) \
-  X(VCNMakeTool) \
-  X(VCPostBuildEventTool) \
-  X(VCPreBuildEventTool) \
-  X(VCPreLinkEventTool) \
-  X(VCResourceCompilerTool) \
-  X(VCWebDeploymentTool) \
-  X(VCWebServiceProxyGeneratorTool) \
-  X(VCXDCMakeTool) \
-  X(VCXMLDataGeneratorTool) \
-  X(Unknown)
-
-// tool interface strings
-#define X(NAME) # NAME,
-static const char* kToolStrings[] = {VCPROJ_TOOL_INTERFACES};
-#undef X
-
-// tool interface types
-#define X(NAME) ToolType_ ## NAME,
-enum ToolType {VCPROJ_TOOL_INTERFACES};
-#undef X
-
-#undef VCPROJ_TOOL_INTERFACES
-
-
-static ToolType GetToolType(XMLNode* node) {
-  if (!node) return ToolType_Unknown;
-  ToolType type = ToolType_Unknown;
-  if (XMLAttribute* attr = node->first_attribute("Name")) {
-    char* name = attr->value();
-    for (size_t i = 0; i < ARRAY_COUNT(kToolStrings); ++i) {
-      if (strcmp(name, kToolStrings[i]) == 0) {
-        type = static_cast<ToolType>(i);
-        break;
-      }
-    }
-  }
-  return type;
-}
 
 static void ParseFileNodes(const XMLDocument& doc, VCProject::Configuration* config) {
   typedef std::vector<XMLNode*> NodeList;
@@ -226,6 +146,24 @@ static void ParseFileNodes(const XMLDocument& doc, VCProject::Configuration* con
   }
 }
 
+static void CollectToolProperties(XMLNode* configuration, unordered_map<string, unordered_map<string, string> >* out) {
+  XMLNode* tool = configuration->first_node("Tool");
+  while (tool) {
+    XMLAttribute* attr = tool->first_attribute("Name");
+    char* toolname     = attr->value();
+
+    while (attr = attr->next_attribute()) {
+      string value(attr->value());
+      // substitute project macros
+      for (size_t i = 0; i < ARRAY_COUNT(kProjectMacros); ++i) {
+        Replace(&value, kProjectMacros[i], GMacroMap[kProjectMacros[i]]);
+      }
+      (*out)[toolname].insert(make_pair(attr->name(), value));
+    }
+    tool = tool->next_sibling();
+  }
+}
+
 // for each configuration,
 // parse tool properties
 // and collect files referenced in the vcproj
@@ -253,7 +191,6 @@ static void ParseConfigurations(const XMLDocument& doc, VCProject* out) {
   XMLNode* configuration = configurations->first_node();
   while (configuration) {
     VCProject::Configuration config;
-    //ProjectConfiguration config;
     if (XMLAttribute* attr = configuration->first_attribute("Name")) {
       size_t len = strcspn(attr->value(), "|");
       config.name.assign(attr->value(), len);
@@ -290,24 +227,7 @@ static void ParseConfigurations(const XMLDocument& doc, VCProject* out) {
     }
 
     //collect tool properties
-    XMLNode* tool = configuration->first_node("Tool");    
-    while (tool) {
-      XMLAttribute* attr = tool->first_attribute("Name");
-      char* toolname     = attr->value();
-      
-      while (attr = attr->next_attribute()) {
-        string value(attr->value());
-        
-        // substitute project macros
-        for (size_t i = 0; i < ARRAY_COUNT(kProjectMacros); ++i) {
-          Replace(&value, kProjectMacros[i], GMacroMap[kProjectMacros[i]]);
-        }
-        
-        
-        config.properties[toolname].insert(make_pair(attr->name(), value));
-      }
-      tool = tool->next_sibling();
-    }
+    CollectToolProperties(configuration,&config.properties);
 
 
     ParseFileNodes(doc, &config);

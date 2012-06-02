@@ -17,8 +17,10 @@
 #include <unordered_map>
 #include <vector>
 
-void GeneratePropertyMappings(std::unordered_map<std::string, std::vector<std::string> >* out);
-void Test();
+// Returns the length of the given array.
+// compile time assertion with "ERROR_Non_Array_Type"
+// if x is not a static array.
+#define ARRAY_COUNT(x) (sizeof(::internal::ERROR_Non_Array_Type(x)))
 
 
 // String search and replace (in place)
@@ -68,4 +70,22 @@ inline std::string StripCurrentDirReference(const std::string& path) {
        return path.substr(2);
   }
   return path;
+}
+
+
+namespace internal {
+// ARRAY_COUNT implementation
+#if defined(_WIN64) || defined(__LP64__) || defined(_M_AMD64)
+template<class ArrayType, size_t N>
+char(__unaligned &ERROR_Non_Array_Type(ArrayType(&)[N]))[N];
+#endif
+
+// GCC wants both const and non-const versions
+#ifndef _MSC_VER
+template<class ArrayType, size_t N>
+char(&ERROR_Non_Array_Type(const ArrayType(&)[N]))[N];
+#endif
+
+template<class ArrayType, size_t N>
+char(&ERROR_Non_Array_Type(ArrayType(&)[N]))[N];
 }
