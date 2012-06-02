@@ -1,3 +1,5 @@
+#ifdef VSTOMAKE_RUN_TESTS
+
 #include "vcproject.h"
 #include <gtest/gtest.h>
 #include <fstream>
@@ -48,3 +50,4 @@ TEST_F(VCProjectTest, Files) {
   
 }
 } //namespace
+#endif
