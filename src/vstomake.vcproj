@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\external"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;VSTOMAKE_RUN_TESTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -173,6 +173,10 @@
 	</References>
 	<Files>
 		<File
+			RelativePath=".\Makefile"
+			>
+		</File>
+		<File
 			RelativePath=".\makefile.cc"
 			>
 		</File>
@@ -206,6 +210,18 @@
 		</File>
 		<File
 			RelativePath=".\utility.cc"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				ExcludedFromBuild="true"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath=".\utility.h"
 			>
 		</File>
 		<File
