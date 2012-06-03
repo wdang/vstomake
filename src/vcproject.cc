@@ -146,6 +146,11 @@ static void ParseFileNodes(const XMLDocument& doc, VCProject::Configuration* con
   }
 }
 
+#ifdef _MSC_VER
+//C4706: assignment within conditional expression
+#pragma warning(push)
+#pragma warning(disable: 4706)
+#endif
 static void CollectToolProperties(XMLNode* configuration, unordered_map<string, unordered_map<string, string> >* out) {
   XMLNode* tool = configuration->first_node("Tool");
   while (tool) {
@@ -163,6 +168,9 @@ static void CollectToolProperties(XMLNode* configuration, unordered_map<string, 
     tool = tool->next_sibling();
   }
 }
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 // for each configuration,
 // parse tool properties
