@@ -38,11 +38,8 @@ int ErrorMessage(const std::string& msg) {
 
 int main(int argc, char* argv[]) {
   using std::string;
-  using std::istringstream;
   using std::ifstream;
-  using std::vector;
   using std::ofstream;
-  using std::unordered_map;
 
   if (argc<2) {
     return ErrorMessage("No input files.");
