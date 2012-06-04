@@ -13,15 +13,8 @@
 // limitations under the License.
 #include "precompiled.h"
 #include "vcclcompilertool.h"
-#include "utility.h"
 
-// VCCLCompilerTool constructor implementation
-VCCLCompilerTool::VCCLCompilerTool(const VCProject::Configuration& configuration) {
-  auto iter = configuration.properties.find("VCCLCompilerTool");
-  if (iter != configuration.properties.end()) {
-    properties = iter->second;
-  }
-}
+VCCLCompilerTool::VCCLCompilerTool(){}
 
 // VCCLCompilerTool's members is implemented via excessive X-macros
 // since their functionality simply queries the underlying property map
@@ -105,9 +98,9 @@ VCCLCompilerTool::Enum GetEnum(const std::string& name, const std::string& value
 }
 
 #define X(NAME, TYPE, LEN) VCCLCompilerTool::Enum VCCLCompilerTool::NAME() const { \
-    auto iter = properties.find(# NAME);                                           \
+    auto iter = properties->find(# NAME);                                           \
     VCCLCompilerTool::Enum rv;                                                     \
-    if (iter != properties.end()) {                                                \
+    if (iter != properties->end()) {                                                \
       rv = GetEnum(# NAME, iter->second);                                          \
     }else {                                                                        \
       rv = VCCLCompilerTool::Enum_Unknown;                                         \
@@ -148,9 +141,9 @@ X(WarnAsError)\
 X(WholeProgramOptimization)
 
 #define X(NAME) bool VCCLCompilerTool::NAME() const { \
-    auto iter = properties.find(# NAME); \
+    auto iter = properties->find(# NAME); \
     bool rv   = false; \
-    if (iter != properties.end()) { \
+    if (iter != properties->end()) { \
       std::string value(iter->second); \
       std::transform(value.begin(), value.end(), value.begin(), tolower); \
       rv = (value.find("true") != std::string::npos); \
@@ -185,8 +178,8 @@ X(VCProjectEngine)\
 X(XMLDocumentationFileName)\
 X(toolName)
 #define X(NAME) const char* VCCLCompilerTool::NAME() const { \
-    auto iter = properties.find(# NAME); \
-    return iter == properties.end() ? "" : iter->second.c_str(); \
+    auto iter = properties->find(# NAME); \
+    return iter == properties->end() ? "" : iter->second.c_str(); \
 }
 
 VCCLCOMPILERTOOL_STRING_ACCESSORS

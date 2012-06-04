@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #pragma once
-#include "vcproject.h"
+
+#include <unordered_map>
+#include <string>
 
 // VCCLCompilerTool is for convienent access
 // to the VCCLCompilerTool properties of a project configuration.
@@ -135,7 +137,7 @@ struct VCCLCompilerTool {
 
   // Access VCCLCompilerTool properties from the given
   // project configuration
-  explicit VCCLCompilerTool(const VCProject::Configuration& configuration);
+  
    
   // The following accessors return "" or Enum_Unknown or false 
   // to represent an empty value
@@ -211,5 +213,8 @@ struct VCCLCompilerTool {
   const char* XMLDocumentationFileName() const;
 
  private:
-  std::unordered_map<std::string, std::string> properties;
+  friend struct VCProject;
+  friend struct VCConfiguration;  
+  VCCLCompilerTool();
+  std::unordered_map<std::string, std::string>* properties;
 };
