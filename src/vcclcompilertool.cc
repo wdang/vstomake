@@ -13,6 +13,7 @@
 // limitations under the License.
 #include "precompiled.h"
 #include "vcclcompilertool.h"
+#include "utility.h"
 
 VCCLCompilerTool::VCCLCompilerTool(){}
 
