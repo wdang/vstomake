@@ -16,6 +16,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <fstream>
 
 // Returns the length of the given array.
 // compile time assertion with "ERROR_Non_Array_Type"
@@ -72,6 +73,41 @@ inline std::string StripCurrentDirReference(const std::string& path) {
   return path;
 }
 
+
+// Open the file in 'path' and read the contents into
+// the given string.
+// 
+// @path: path to a file
+// @str: buffer to hold the contents of 'path'
+// 
+// Returns true on success
+inline bool FileToString(const std::string& path, std::string* str) {
+  if(!str) return false;
+    
+  std::ifstream fs(path.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
+  const std::streamsize size = fs.tellg();
+  
+  if(size == -1) return false; 
+  
+  str->reserve(static_cast<size_t>(size));
+  for(size_t i = 0; i < size; ++i) {
+    str->push_back('\0');
+  }
+  
+  if(!fs.is_open()){
+    // doesn't hurt to try again, io is magical sometimes
+    fs.open(path.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
+    if(!fs.is_open()){
+      return false;
+    }  
+  }
+  
+  fs.seekg(0, std::ios::beg);
+  fs.read(&(*str)[0], size);
+  fs.close();
+  
+  return true;
+}
 
 namespace internal {
 // ARRAY_COUNT implementation
