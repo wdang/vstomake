@@ -13,3 +13,37 @@
 // limitations under the License.
 #include "precompiled.h"
 #include "utility.h"
+#include <stdlib.h>
+
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN 1
+#endif 
+
+#ifndef STRICT
+#define STRICT 1
+#endif
+ 
+#ifndef NOMINMAX
+#define NOMINMAX 1
+#endif
+
+#include <windows.h>
+#endif
+
+std::string AbsoluteFilePath( const std::string& path ){
+  static const size_t kMaxPath = 32767;
+  char buffer[kMaxPath];
+  char cwd[kMaxPath];  
+#ifdef _WIN32
+  GetCurrentDirectoryA(kMaxPath,cwd);
+  unsigned results = GetFullPathNameA(path.c_str(),kMaxPath,buffer,NULL);
+  SetCurrentDirectoryA(cwd);
+  if(!results){
+    return path;
+  }
+#else
+  realpath(path.c_str(),buffer);
+#endif
+  return std::string(buffer);
+}

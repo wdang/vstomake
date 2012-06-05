@@ -109,6 +109,9 @@ inline bool FileToString(const std::string& path, std::string* str) {
   return true;
 }
 
+// Returns the absolute file path of the given path
+std::string AbsoluteFilePath(const std::string& path);
+
 namespace internal {
 // ARRAY_COUNT implementation
 #if defined(_WIN64) || defined(__LP64__) || defined(_M_AMD64)
