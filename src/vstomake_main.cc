@@ -12,11 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include "precompiled.h"
-#include "vcproject.h"
-#include "makefile.h"
-
+#include "msvc_object_model.h"
+#include "make_file.h"
+#include <io.h>
+#include <windows.h>
 #include <sys/stat.h>
+#include <conio.h>
 
+// @@ kDocumentation
 static const char kDocumentation[] =
   "vstomake: Convert Visual Studio project file(s) to a GNU Makefile.\n\
 Usage:\n\
@@ -36,41 +39,21 @@ int ErrorMessage(const std::string& msg) {
   return 1;
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {  
+#if 0
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+#else 
   using std::string;
   using std::ifstream;
   using std::ofstream;
-
-  if (argc<2) {
-    return ErrorMessage("No input files.");
-  }
-
-  ifstream fs(argv[1], std::ios::in | std::ios::binary | std::ios::ate);
-  const std::streamsize size = fs.tellg();
-
-  if (size  == -1) {
-    string message("Invalid file: ");
-    message.append(argv[1]);
-    return ErrorMessage(message);
-  }
-
-  string contents(static_cast<size_t>(size), '\0');
-  if (fs.is_open()) {
-    fs.seekg(0, std::ios::beg);
-    fs.read(&contents[0], contents.size());
-    fs.close();
-  }
-  else {
-    string message("Error opening: ");
-    message.append(argv[1]);
-    return ErrorMessage(message);
-  }
-
+  
   //TODO(wdang): determine if vcproj or sln
   string destination(".");
   if (argc > 2) {
     destination.assign(argv[2]);
   }
+  
   // check output destination
   struct stat info;
   if (stat(destination.c_str(), &info) ==0) {
@@ -86,12 +69,12 @@ int main(int argc, char* argv[]) {
     destination.append(" is an invalid path.");
     return ErrorMessage(destination.c_str());
   }
-
-  // parse the project
-  VCProject project(contents);
-  project.path = argv[1];
-
-  // translate to makefile
+  
+  string errors;
+  VCProject project(argv[1],&errors);
+  if(!errors.empty()) {
+    return ErrorMessage(errors);
+  }
   Makefile makefile(project);
 
   // write the file
@@ -103,13 +86,9 @@ int main(int argc, char* argv[]) {
   else {
     return ErrorMessage("Error writing Makefile");
   }
-
   printf("Output: %s\n", destination.c_str());
   fflush(stdout);
-#ifdef VSTOMAKE_RUN_TESTS
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-#else
+
   return 0;
 #endif
 }

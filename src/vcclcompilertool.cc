@@ -11,9 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#include "precompiled.h"
 #include "vcclcompilertool.h"
-#include "utility.h"
 
 VCCLCompilerTool::VCCLCompilerTool(){}
 
@@ -68,22 +66,21 @@ static PropertyInfo kVCCLCompilerPropertyInfo[] = {
 VCCLCompilerTool::Enum GetEnum(const std::string& name, const std::string& value) {
   VCCLCompilerTool::Enum rv = VCCLCompilerTool::Enum_Unknown;
   
-  for(size_t i = 0; i < ARRAY_COUNT(kVCCLCompilerPropertyInfo); ++i) {
+  for(size_t i = 0; i < sizeof(kVCCLCompilerPropertyInfo)/sizeof(kVCCLCompilerPropertyInfo[0]); ++i) {
     PropertyInfo& prop = kVCCLCompilerPropertyInfo[i];
     
     if(name.compare(prop.name) == 0) {
       // Since we shove all enumerations in a giant
-      // definition (VCCLCompilerTool::Enum) instead separately, we simply
+      // enum (VCCLCompilerTool::Enum) instead of defining them separately, we 
       // use an offset from PropertyInfo.type to obtain the correct Enum
-      // representation of the 'value'. The offset is incremented because
+      // representation of 'value'. The offset is incremented because
       // all property values are zero-based
       int offset = strtol(value.c_str(), 0, 10) + 1;
       
       if(offset <= prop.max + 1) {
         // For some reason the DebugInformationFormat property
         // uses the following values: [0,1,3,4]
-        // instead of: [0,1,2,3] so theres going to be exceptions
-        // in incrementing the offset.
+        // instead of: [0,1,2,3] 
         if(prop.type == VCCLCompilerTool::Enum_debugOption && offset >= 3)
           --offset;
         

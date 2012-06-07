@@ -17,9 +17,8 @@
 // automation object model interfaces. 
 //
 // VCProject should be the only structure used in client code.
-#include <string>
 #include <vector>
-#include <unordered_map>
+#include <iosfwd>
 
 #include "vcclcompilertool.h"
 
@@ -28,16 +27,17 @@ struct VCFilter {
   std::vector<struct VCFile*> Files;
   std::string Name;
   VCFilter*   Parent;
-  VCFilter*   Filters;
+  std::vector<VCFilter*> Filters;
 };
 
 // Represents a single file referenced by the vcproj
 struct VCFile {
+  VCFile();
   std::string Filename;
   std::string RelativePath;
   std::string AbsolutePath;
   std::string Filter;
-  bool        ExcludedFromBuild;
+  std::vector<std::string> Excluded;
   bool        ForcedInclude;
   bool        PrecompiledHeader;
   bool        CompileAsC;
@@ -116,11 +116,20 @@ struct VCConfiguration {
 // VCProject parses a .vcproj on construction
 struct VCProject {
 
+
   // Initialize a VCProject and parse the given .vcproj file
   //
   // @path: relative or absolute path to a .vcproj file
   // @errors: error code return value (not-implemented)
-  explicit VCProject(const std::string& path, int* errors = 0);
+  explicit VCProject(const std::string& path, std::string* errors = 0);
+
+  // Initialize a VCProject and process given .vcproj file
+  // using the specified parser
+  //
+  // @path: relative or absolute path to a .vcproj file
+  // @parser: user defined parser for processing a project file
+  // @errors: error code return value (not-implemented)
+  explicit VCProject(const std::string& path, struct ProjectParser* parser, std::string* errors = 0);
 
   // All files referenced by the project
   std::vector<VCFile> Files;

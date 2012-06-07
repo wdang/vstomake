@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #pragma once
-#include "vcproject.h"
-
+#include <unordered_map>
+#include <string>
 // VCLinkerTool is for convienent access
 // to the VCLinkerTool  properties of a project configuration
 struct VCLinkerTool {
@@ -97,7 +97,6 @@ struct VCLinkerTool {
 
   // Access VCLinkerTool properties from the given
   // project configuration
-  explicit VCLinkerTool(VCProject::Configuration& configuration);
 
   // The following accessors return "" or Enum_Unknown or false 
   // to represent an empty value
@@ -181,5 +180,7 @@ struct VCLinkerTool {
 
 
  private:
-  std::unordered_map<std::string, std::string> properties;
+  friend struct VCProject;
+  friend struct VCConfiguration;  
+  std::unordered_map<std::string, std::string>* properties;
 };

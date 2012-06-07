@@ -216,5 +216,5 @@ struct VCCLCompilerTool {
   friend struct VCProject;
   friend struct VCConfiguration;  
   VCCLCompilerTool();
-  std::unordered_map<std::string, std::string>* properties;
+  const std::unordered_map<std::string, std::string>* properties;
 };

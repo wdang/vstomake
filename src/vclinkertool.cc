@@ -14,13 +14,6 @@
 #include "precompiled.h"
 #include "vclinkertool.h"
 
-VCLinkerTool::VCLinkerTool(VCProject::Configuration& configuration) {
-  auto iter = configuration.properties.find("VCLinkerTool");
-  if (iter != configuration.properties.end()) {
-    properties = iter->second;
-  }
-}
-
 VCLinkerTool::Enum GetEnum(const std::string&){
   return VCLinkerTool::Enum_Unknown;
 }
@@ -43,9 +36,9 @@ X(TerminalServerAware)\
 X(driver)
 
 #define X(NAME) VCLinkerTool::Enum VCLinkerTool::NAME() const {\
-  auto iter = properties.find(#NAME);\
+  auto iter = properties->find(#NAME);\
   VCLinkerTool::Enum rv;\
-  if(iter != properties.end()){\
+  if(iter != properties->end()){\
      rv = GetEnum(iter->second);\
   }else{\
     rv = Enum_Unknown;\
@@ -83,9 +76,9 @@ X(UseLibraryDependencyInputs)\
 X(UseUnicodeResponseFiles)
 
 #define X(NAME) bool VCLinkerTool::NAME() const {\
-  auto iter = properties.find(#NAME);\
+  auto iter = properties->find(#NAME);\
   bool rv = false;\
-  if(iter != properties.end()){\
+  if(iter != properties->end()){\
     std::string value(iter->second);\
     std::transform(value.begin(),value.end(),value.begin(),tolower);\
     rv = (value.find("true") != std::string::npos);\
@@ -137,8 +130,8 @@ X(Version)\
 X(toolName)
 
 #define X(NAME) const char* VCLinkerTool::NAME() const { \
-    auto iter = properties.find(# NAME); \
-    return iter == properties.end() ? "" : iter->second.c_str(); \
+    auto iter = properties->find(# NAME); \
+    return iter == properties->end() ? "" : iter->second.c_str(); \
 }
 VCLINKERTOOL_STRING_ACCESSORS
 #undef X

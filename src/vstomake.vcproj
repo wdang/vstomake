@@ -21,6 +21,7 @@
 			OutputDirectory="..\bin\$(ConfigurationName)"
 			IntermediateDirectory="$(OutDir)\obj"
 			ConfigurationType="1"
+			UseOfATL="1"
 			CharacterSet="1"
 			>
 			<Tool
@@ -40,10 +41,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP2"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\external"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
-				MinimalRebuild="true"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;VSTOMAKE_RUN_TESTS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				RuntimeTypeInfo="false"
@@ -117,15 +118,19 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
+				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
+				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="..\external"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
-				RuntimeLibrary="2"
+				RuntimeLibrary="1"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="precompiled.h"
 				WarningLevel="4"
-				DebugInformationFormat="3"
+				WarnAsError="true"
+				DebugInformationFormat="0"
 				ForcedIncludeFiles="precompiled.h"
 			/>
 			<Tool
@@ -140,10 +145,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="1"
-				GenerateDebugInformation="true"
-				SubSystem="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
+				GenerateDebugInformation="false"
+				SubSystem="0"
+				OptimizeReferences="1"
+				EnableCOMDATFolding="1"
+				LinkTimeCodeGeneration="1"
+				SetChecksum="true"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -173,15 +180,27 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\Makefile"
+			RelativePath=".\internal.cc"
 			>
 		</File>
 		<File
-			RelativePath=".\makefile.cc"
+			RelativePath=".\internal.h"
 			>
 		</File>
 		<File
-			RelativePath=".\makefile.h"
+			RelativePath=".\make_file.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\make_file.h"
+			>
+		</File>
+		<File
+			RelativePath=".\msvc_object_model.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\msvc_object_model.h"
 			>
 		</File>
 		<File
@@ -209,16 +228,20 @@
 			>
 		</File>
 		<File
+			RelativePath=".\project_parser.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\project_parser.h"
+			>
+		</File>
+		<File
+			RelativePath=".\string_tokenizer.h"
+			>
+		</File>
+		<File
 			RelativePath=".\utility.cc"
 			>
-			<FileConfiguration
-				Name="Debug|Win32"
-				ExcludedFromBuild="true"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-				/>
-			</FileConfiguration>
 		</File>
 		<File
 			RelativePath=".\utility.h"
@@ -241,15 +264,19 @@
 			>
 		</File>
 		<File
-			RelativePath=".\vcproject.cc"
+			RelativePath=".\vcproj_parser.cc"
 			>
 		</File>
 		<File
-			RelativePath=".\vcproject.h"
+			RelativePath=".\vcproj_parser.h"
 			>
 		</File>
 		<File
-			RelativePath=".\vcproject_tests.cc"
+			RelativePath=".\vcxproj_parser.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\vcxproj_parser.h"
 			>
 		</File>
 		<File
