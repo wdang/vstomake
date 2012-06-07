@@ -14,7 +14,7 @@
 #pragma once
 
 // "Pseudo" representaton of a few Visual Studio
-// automation object model interfaces. 
+// automation object model interfaces.
 //
 // VCProject should be the only structure used in client code.
 #include <vector>
@@ -47,11 +47,11 @@ struct VCFile {
 struct VCConfiguration {
 
   enum Type {
-    Type_Unknown,
-    Type_Application,
-    Type_DynamicLibrary,
-    Type_StaticLibrary,
-    Type_Generic,
+    Type_Unknown        = 0,
+    Type_Application    = 1,
+    Type_DynamicLibrary = 2,
+    Type_StaticLibrary  = 4,
+    Type_Utility        = 10,
   };
 
   enum Optimization {
@@ -80,11 +80,11 @@ struct VCConfiguration {
     UseMfc_Static,
     UseMfc_Dynamic,
   };
-  
+
   VCConfiguration();
-  
-  std::unordered_map<std::string,std::unordered_map<std::string, std::string>> ToolProperties;  
-  
+
+  std::unordered_map<std::string, std::unordered_map<std::string, std::string> > ToolProperties;
+
   // VCFiles that are !ExcludedFromBuild
   std::vector<VCFile*> Files;
 
@@ -104,13 +104,13 @@ struct VCConfiguration {
   std::string Platform;
 
   // Path to inherited property sheet(.vsprops)
-  std::string  PropertySheets;
+  std::string      PropertySheets;
 
-  CharSet      CharacterSet;
-  Type         ConfigurationType;
-  UseATL       UseOfATL;
-  UseMfc       UseOfMfc;
-  Optimization WholeProgramOptimization;  
+  CharSet          CharacterSet;
+  Type             ConfigurationType;
+  UseATL           UseOfATL;
+  UseMfc           UseOfMfc;
+  Optimization     WholeProgramOptimization;
   VCCLCompilerTool CLCompilerTool;
 };
 
