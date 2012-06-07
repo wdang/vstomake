@@ -81,6 +81,8 @@ struct VCConfiguration {
     UseMfc_Dynamic,
   };
   
+  VCConfiguration();
+  
   std::unordered_map<std::string,std::unordered_map<std::string, std::string>> ToolProperties;  
   
   // VCFiles that are !ExcludedFromBuild
