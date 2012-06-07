@@ -150,7 +150,7 @@ std::string MakefileGen::GlobalVariables() {
      << "CPPFLAGS += $(CURRENT_CPPFLAGS)\n"
      << "CXXFLAGS += --std=gnu++0x $(CURRENT_CXXFLAGS) -I" << project_dir <<"\n"
      << "LDFLAGS  += $(CURRENT_LDFLAGS)\n"
-     << "ARFLAGS   = $(CURRENT_ARFLAGS)\n"
+     << "ARFLAGS   = -rcs $(CURRENT_ARFLAGS)\n"
      << "PROJECT_NAME      := " <<project_name << "\n"     
      << "OUTDIR             = $(CURRENT_OUTDIR)\n"
      << "INTDIR             = $(CURRENT_INTDIR)\n"
@@ -220,9 +220,13 @@ std::string MakefileGen::BuildPrologue() {
   ss << "\n" << rule << "Stats:\n"
      << "\t@echo \"Configuration: " << name <<"\"\n"
      << "\t@echo \"CPPFLAGS:     \" $(CPPFLAGS)\n"
-     "\t@echo \"CFLAGS:       \" $(CFLAGS)\n"
-     "\t@echo \"CXXFLAGS:     \" $(CXXFLAGS)\n"
-     "\t@printf \"Intermediates: %s \\nOutputs: %s \\nTarget: %s \\n\\n\" $(INTDIR) $(OUTDIR) $(TARGET)\n\n";
+        "\t@echo \"CFLAGS:       \" $(CFLAGS)\n"
+        "\t@echo \"CXXFLAGS:     \" $(CXXFLAGS)\n"
+        "\t@echo \"ARFLAGS:      \" $(ARFLAGS)\n"
+        "\t@echo \"LDFLAGS:      \" $(LDFLAGS)\n"
+        "\t@echo \"Intermediates:\" $(INTDIR)\n"
+        "\t@echo \"Outputs:      \" $(OUTDIR)\n"
+        "\t@echo \"Target:       \" $(TARGET)\n\n";
   
   // source to .o pathsubst
   string objects_o(intdir + "/%.o");
@@ -284,7 +288,7 @@ std::string MakefileGen::BuildRule(){
     case VCConfiguration::Type_Application:
       ss << build_rule << ":CURRENT_TARGET    :=" << "$(PROJECT_NAME)\n"
          << build_rule << ":" << prerequisites << "\n"
-         << "\t$(CXX) $(LDFLAGS) "<<" $(" << config_objs << ")" << " -o $(TARGET)\n\n";
+         << "\t$(CXX)  $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS) "<<" $(" << config_objs << ")" << " -o $(TARGET)\n\n";
       break;
 
     case VCConfiguration::Type_DynamicLibrary:
@@ -296,7 +300,7 @@ std::string MakefileGen::BuildRule(){
     case VCConfiguration::Type_StaticLibrary:
       ss << build_rule << ":CURRENT_TARGET       :=" << "lib$(PROJECT_NAME).a\n"
          << build_rule << ":" << prerequisites << "\n"
-         << "\t$(AR) $(ARFLAGS) $(Target)" <<" $(" << config_objs << ")\n\n";
+         << "\t$(AR) $(ARFLAGS) $(TARGET)" <<" $(" << config_objs << ")\n\n";
       break;
   }
   return ss.str();
