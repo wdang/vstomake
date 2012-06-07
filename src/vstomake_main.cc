@@ -14,10 +14,8 @@
 #include "precompiled.h"
 #include "msvc_object_model.h"
 #include "make_file.h"
-#include <io.h>
-#include <windows.h>
+#include <sys/types.h>
 #include <sys/stat.h>
-#include <conio.h>
 
 // @@ kDocumentation
 static const char kDocumentation[] =
@@ -47,7 +45,9 @@ int main(int argc, char* argv[]) {
   using std::string;
   using std::ifstream;
   using std::ofstream;
-  
+  if (argc<2) {
+   return ErrorMessage("No input files.");
+  }
   //TODO(wdang): determine if vcproj or sln
   string destination(".");
   if (argc > 2) {
