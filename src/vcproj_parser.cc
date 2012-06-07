@@ -146,7 +146,7 @@ bool GetToolPropertiesForConfiguration(const string& name, const string& toolnam
 }
 
 VcprojParser::VcprojParser()
-  : root(nullptr) {
+  : root(0) {
   for(size_t i = 0; i < ARRAY_COUNT(kProjectMacros2008); ++i) {
     macros.insert(make_pair(kProjectMacros2008[i], ""));
   }
@@ -455,7 +455,7 @@ bool VcprojParser::Files(std::vector<VCFile>* files) {
 }
 
 bool VcprojParser::Parse(char* buffer, size_t len) {
-  root = nullptr;
+  root = 0;
 
   macros.clear();
   for(size_t i = 0; i < ARRAY_COUNT(kProjectMacros2008); ++i) {
@@ -470,7 +470,7 @@ bool VcprojParser::Parse(char* buffer, size_t len) {
   doc.parse<0>(&src[0]);
   root = doc.first_node("VisualStudioProject");
 
-  return root != nullptr;
+  return root != 0;
 }
 #ifdef VSTOMAKE_RUN_TESTS
 #include <gtest/gtest.h>

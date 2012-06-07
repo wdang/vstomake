@@ -93,7 +93,7 @@ bool VcxprojParser::Configurations(vector<VCConfiguration>* out) {
   XMLNode* current = project->first_node("ItemGroup");
   while(current) {
     project_configuration = current->first_node("ProjectConfiguration");
-    if(project_configuration != nullptr) { break; }
+    if(project_configuration != 0) { break; }
     current = current->next_sibling();
   }
 
@@ -102,7 +102,7 @@ bool VcxprojParser::Configurations(vector<VCConfiguration>* out) {
       if((*out)[i].Name.compare(name) == 0)
         return &(*out)[i];
     }
-    return nullptr;
+    return 0;
   };
 
   while(project_configuration) {
@@ -151,8 +151,8 @@ bool VcxprojParser::Files(vector<VCFile>* files) {
       if(XMLAttribute* include = cinclude->first_attribute("Include")) {
         VCFile file;
         file.RelativePath.assign(include->value());
-        file.PrecompiledHeader = cinclude->first_node("PrecompiledHeader") != nullptr;
-        file.PrecompiledHeader = cinclude->first_node("ExcludedFromBuild") != nullptr;
+        file.PrecompiledHeader = cinclude->first_node("PrecompiledHeader") != 0;
+        file.PrecompiledHeader = cinclude->first_node("ExcludedFromBuild") != 0;
         files->push_back(file);
       }
     }

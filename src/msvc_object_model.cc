@@ -144,7 +144,7 @@ VCProject::VCProject(const string& path, string* errors /*= 0*/)
     errors = &status;
   }
 
-  ProjectParser* parser = nullptr;
+  ProjectParser* parser = 0;
   VcprojParser vcproj;
   VcxprojParser vcxproj;
 
@@ -154,7 +154,7 @@ VCProject::VCProject(const string& path, string* errors /*= 0*/)
     parser = &vcxproj;
   }
 
-  if(parser == nullptr) {
+  if(parser == 0) {
     errors->append("Project file not recognized: ");
     errors->append(path);
     return;
