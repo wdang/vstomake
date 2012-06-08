@@ -33,17 +33,14 @@
 
 std::string AbsoluteFilePath( const std::string& path ){
   static const size_t kMaxPath = 32767;
-  char buffer[kMaxPath];
+  char buffer[kMaxPath]={0};
   char cwd[kMaxPath];  
 #ifdef _WIN32
   GetCurrentDirectoryA(kMaxPath,cwd);
   unsigned results = GetFullPathNameA(path.c_str(),kMaxPath,buffer,NULL);
-  SetCurrentDirectoryA(cwd);
-  if(!results){
-    return path;
-  }
+  SetCurrentDirectoryA(cwd);  
 #else
-  realpath(path.c_str(),buffer);
+  unsigned results = realpath(path.c_str(),buffer);
 #endif
-  return std::string(buffer);
+  return results ? std::string(buffer) : path;
 }
