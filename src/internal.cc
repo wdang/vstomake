@@ -10,7 +10,7 @@
 
 #include "utility.h"
 #include "string_tokenizer.h"
-#include "msvc_object_model.h"
+#include "libvs.h"
 
 
 using std::make_pair;
@@ -80,7 +80,9 @@ static const char* const kProjectMacros[] = {
   "$(WebDeployRoot)"
 };
 
-typedef std::unordered_map<std::string,std::string> MacroMap;
+typedef std::unordered_map<std::string, std::string> MacroMap;
+
+namespace vs {
 // In place-expansion of macros(see kProjectMacros) found in input
 void ExpandMacros(string* input, MacroMap& macros) {
 
@@ -122,10 +124,10 @@ static size_t GetFileCount(const XMLDocument& doc) {
     if(!node) return;
     // we id File nodes by the existance of the RelativePath attribute
     // we id filter nodes by the existance of the Name attribute
-    if(auto* attr = node->first_attribute("Name")) {
+    if(node->first_attribute("Name")) {
       traverse_nodes(node->first_node(), count);
       traverse_nodes(node->next_sibling(), count);
-    } else if(auto* attr = node->first_attribute("RelativePath")) {
+    } else if(node->first_attribute("RelativePath")) {
       ++count;
       traverse_nodes(node->next_sibling(), count);
     }
@@ -137,18 +139,17 @@ static size_t GetFileCount(const XMLDocument& doc) {
   return count;
 }
 
-void GetFileCountWorkaround(){
+void GetFileCountWorkaround() {
   XMLDocument doc;
-   GetFileCount(doc);
+  GetFileCount(doc);
 }
 
-
-void FilterCPPSources(const std::vector<VCFile*>& sources, std::vector<VCFile*>* out) {
+void FilterCPPSources(const std::vector<File*>& sources, std::vector<File*>* out) {
   // Exclude non c++ source files
   static const char* kCPPExtensions[] = {".cc", ".cpp", ".cxx", ".c++", ".C", ".cp", ".CPP"};
   out->reserve(sources.size());
   copy_if(sources.begin(), sources.end(), std::back_inserter(*out),
-  [](VCFile* file)->bool {
+  [](vs::File* file)->bool {
     foreach(auto* ext, kCPPExtensions) {
       if(file->RelativePath.find(ext) != string::npos) {
         return true;
@@ -156,4 +157,7 @@ void FilterCPPSources(const std::vector<VCFile*>& sources, std::vector<VCFile*>*
     }
     return false;
   });
+}
+
+
 }

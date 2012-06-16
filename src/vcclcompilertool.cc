@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include "vcclcompilertool.h"
-
+namespace vs {
 VCCLCompilerTool::VCCLCompilerTool(){}
 
 // VCCLCompilerTool's members is implemented via excessive X-macros
@@ -182,3 +182,4 @@ X(toolName)
 
 VCCLCOMPILERTOOL_STRING_ACCESSORS
 #undef X
+}

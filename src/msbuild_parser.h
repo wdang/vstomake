@@ -6,8 +6,8 @@
 #include "project_parser.h"
 
 
-struct VcxprojParser : public ProjectParser {
-  VcxprojParser();
+struct MSBuildParser : public ProjectParser {
+  MSBuildParser();
   
   virtual bool CompilerProperties(const std::string& config, 
     std::unordered_map<std::string,std::string>* props);
@@ -17,11 +17,12 @@ struct VcxprojParser : public ProjectParser {
     std::unordered_map<std::string,std::string>* props);
 
 
-  virtual bool Configurations(std::vector<VCConfiguration>* out);
-  virtual bool Files(std::vector<VCFile>* files);
-  virtual bool Filters(std::vector<VCFilter>* filter);
+  virtual bool Configurations(std::vector<vs::Configuration>* out);
+  virtual bool Files(std::vector<vs::File>* files);
+  virtual bool Filters(std::vector<vs::Filter>* filter);
   virtual bool Parse(char* buffer, size_t len);
   virtual bool ProjectProperties( std::unordered_map<std::string, std::string>* props );
+  virtual bool Parse(const std::string& path);
 
 private:
   std::unordered_map<std::string, std::string> macros;

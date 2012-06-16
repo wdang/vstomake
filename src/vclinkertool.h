@@ -14,6 +14,7 @@
 #pragma once
 #include <unordered_map>
 #include <string>
+namespace vs {
 // VCLinkerTool is for convienent access
 // to the VCLinkerTool  properties of a project configuration
 struct VCLinkerTool {
@@ -180,7 +181,9 @@ struct VCLinkerTool {
 
 
  private:
-  friend struct VCProject;
-  friend struct VCConfiguration;  
+  friend struct Project;
+  friend struct Configuration;  
   std::unordered_map<std::string, std::string>* properties;
 };
+
+}

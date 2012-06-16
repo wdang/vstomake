@@ -14,12 +14,13 @@
 #pragma once
 #include <string>
 
-struct VCProject;
+namespace vs {struct Project;}
+
 struct Makefile {
   // Construct a Makefile representation of a vcproj
   // using the given VCProj object and
   //
   // The resulting Makefile.contents
-  explicit Makefile(const VCProject& project);
+  explicit Makefile(const vs::Project& project);
   std::string contents;
 };

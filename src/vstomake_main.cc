@@ -1,5 +1,5 @@
-// Copyright 2012 William Dang. 
-// 
+// Copyright 2012 William Dang.
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -12,83 +12,148 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include "precompiled.h"
-#include "msvc_object_model.h"
-#include "make_file.h"
+
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <vector>
+#include <unordered_map>
+
+#include "make_file.h"
+#include "libvs.h"
+#include "output_option.h"
+#include "utility.h"
+
+using std::string;
+using std::ifstream;
+using std::ofstream;
+using std::vector;
+using std::unordered_map;
+using std::make_pair;
+
 
 // @@ kDocumentation
 static const char kDocumentation[] =
   "vstomake: Convert Visual Studio project file(s) to a GNU Makefile.\n\
 Usage:\n\
-  vstomake [input] [directory=./]\n\
+  vstomake [input] [directory=./] | [option] [configuration name]\n\
 \n\
   [input]\n\
     *.vcproj\n\
 \n\
   [directory]\n\
-      Output directory. Current directory is the default.\n\
-    Any file named \"Makefile\" within the specified directory\n\
-    will be overwritten. Please omit trailing slashes.";
+        Output directory. Current directory is the default.\n\
+      Any file named \"Makefile\" within the specified directory\n\
+      will be overwritten. Please omit trailing slashes.\n\
+\n\
+[option=prefix]\n\
+        Specifying options will output properties of the given project file\n\
+    instead of writing a makefile. An optional prefix can be supplied in the form:\n\
+        -option=prefix\n\
+    where options is any of the listed options and prefix is a user defined string\n\
+    or macro listed in the [macro] section\n\
+    Unless the -a option is given, the last command line option is expected to be a valid configuration name. \n\
+    Example:\n\
+        vstomake myproject.vcproj -I=\"$(CXXFLAGS) =\" \"Debug|Win32\"\n\
+    will output:\n\n\
+        $(CXXFLAGS) = -D_DEBUG -D_MY_DEFINES etc. etc.\n\n\
+    \n\
+    -a           output for all configurations\n\
+    -i           forced include files \n\
+    -I           external include directories\n\
+    -L           external library directories used by the linker\n\
+    -l           external libraries passed to the linker\n\
+    -D           macros defined in the specified configuration\n\
+    -s           sources included in the specified configuration\n\
+    \n\
+    \n\
+[macros]\n\
+         when using an option specifier of the form -option=prefix\n\
+     if prefix contains any of the following strings, the string will be replaced\n\
+     with the described property.\n\n\
+     $(Name)          project name\n\
+     $(Platform)      build platform name\n\
+     $(Configuration) configuration's name\n\
+     $(IntDir)        configuration's intermediate directory\n\
+     $(OutDir)        configuration's output directory\n\
+     $(Target)        configuration's target output name\n\
+   \n";
 
-int ErrorMessage(const std::string& msg) {
+int ErrorMessage(const string& msg) {
   puts(msg.c_str());
   puts(kDocumentation);
   return 1;
 }
 
-int main(int argc, char* argv[]) {  
-#if 0
+int main(int argc, char* argv[]) {
+#ifdef VSTOMAKE_RUN_TESTS2
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
-#else 
-  using std::string;
-  using std::ifstream;
-  using std::ofstream;
-  if (argc<2) {
-   return ErrorMessage("No input files.");
+#else
+  vector<string> args(argv, argv+argc);
+
+  if(argc < 2) {
+    return ErrorMessage("No input files.");
   }
-  //TODO(wdang): determine if vcproj or sln
+
+  if(argv[1][0] == '-') {
+    return ErrorMessage("No input project specified.");
+  }
+
   string destination(".");
-  if (argc > 2) {
-    destination.assign(argv[2]);
+  bool output_option = false;
+  if(argc > 2) {
+    if(argv[2][0] == '-')
+      output_option = true;
+    else
+      destination.assign(argv[2]);
   }
-  
+
   // check output destination
   struct stat info;
-  if (stat(destination.c_str(), &info) ==0) {
-    if (info.st_mode & S_IFDIR) {
+  if(stat(destination.c_str(), &info) ==0) {
+    if(info.st_mode & S_IFDIR) {
       destination.append("/Makefile");
-    }
-    else if (info.st_mode & S_IFREG) {
+    } else if(info.st_mode & S_IFREG) {
       destination.append(" is not a directory");
       return ErrorMessage(destination.c_str());
     }
-  }
-  else {
+  } else {
     destination.append(" is an invalid path.");
     return ErrorMessage(destination.c_str());
   }
-  
+
+
+
+
   string errors;
-  VCProject project(argv[1],&errors);
+  vs::Project project;
+  vs::Project::Parse(argv[1], &project, &errors);
+
   if(!errors.empty()) {
     return ErrorMessage(errors);
   }
-  Makefile makefile(project);
 
-  // write the file
-  ofstream outfile(destination.c_str());
-  if (outfile.is_open()) {
-    outfile << makefile.contents;
-    outfile.close();
+
+  if(output_option) {
+    DoOutputOption(project, argc, argv);
+  } else {
+    Makefile makefile(project);
+
+    // write the file
+    destination.assign(AbsoluteFilePath(destination));
+    ofstream outfile(destination.c_str());
+    if(outfile.is_open()) {
+      outfile << makefile.contents;
+      outfile.close();
+      printf("Output: %s\n", destination.c_str());
+    } else {
+      return ErrorMessage("Error writing Makefile");
+    }
   }
-  else {
-    return ErrorMessage("Error writing Makefile");
-  }
-  printf("Output: %s\n", destination.c_str());
+
+
+
   fflush(stdout);
-
   return 0;
 #endif
 }

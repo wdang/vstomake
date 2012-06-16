@@ -2,9 +2,9 @@
 #### Build variables ####
 CFLAGS += $(CURRENT_CFLAGS)
 CPPFLAGS += $(CURRENT_CPPFLAGS)
-CXXFLAGS += --std=gnu++0x $(CURRENT_CXXFLAGS) -I.
+CXXFLAGS += --std=gnu++0x $(CURRENT_CXXFLAGS) -I. -Wall -Wextra
 LDFLAGS  += $(CURRENT_LDFLAGS)
-ARFLAGS   = $(CURRENT_ARFLAGS)
+ARFLAGS   = -rcs $(CURRENT_ARFLAGS)
 PROJECT_NAME      := vstomake
 OUTDIR             = $(CURRENT_OUTDIR)
 INTDIR             = $(CURRENT_INTDIR)
@@ -36,22 +36,29 @@ Release: ReleaseWin32
 ####      Platform:  ####
 DebugWin32_SRCS :=\
 internal.cc\
+libvs.cc\
+libvs_private.cc\
 make_file.cc\
-msvc_object_model.cc\
+msbuild_parser.cc\
+output_option.cc\
 precompiled.cc\
 project_parser.cc\
 utility.cc\
 vcclcompilertool.cc\
 vclinkertool.cc\
-vcproj_parser.cc\
-vcxproj_parser.cc\
+vcproject_parser.cc\
+vcproject_parser_tests.cc\
 vstomake_main.cc
 DebugWin32Stats:
 	@echo "Configuration: Debug|Win32"
 	@echo "CPPFLAGS:     " $(CPPFLAGS)
 	@echo "CFLAGS:       " $(CFLAGS)
 	@echo "CXXFLAGS:     " $(CXXFLAGS)
-	@printf "Intermediates: %s \nOutputs: %s \nTarget: %s \n\n" $(INTDIR) $(OUTDIR) $(TARGET)
+	@echo "ARFLAGS:      " $(ARFLAGS)
+	@echo "LDFLAGS:      " $(LDFLAGS)
+	@echo "Intermediates:" $(INTDIR)
+	@echo "Outputs:      " $(OUTDIR)
+	@echo "Target:       " $(TARGET)
 
 DebugWin32_OBJS := $(patsubst %.cc,../bin/Debug/obj/%.o,$(notdir $(DebugWin32_SRCS)))
 DebugWin32_OBJS := $(patsubst %.cpp,../bin/Debug/obj/%.o,$(DebugWin32_OBJS))
@@ -66,13 +73,16 @@ DebugWin32Prebuild:
 	@mkdir -p ../bin/Debug/obj
 	@mkdir -p ../bin/Debug
 
+./precompiled.h.gch:
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./precompiled.cc -o ./precompiled.h.gch
+
 DebugWin32Build:CURRENT_OUTDIR    :=../bin/Debug
 DebugWin32Build:CURRENT_INTDIR    :=../bin/Debug/obj
 DebugWin32Build:CURRENT_CXXFLAGS  := -include precompiled.h -I../external
-DebugWin32Build:CURRENT_CPPFLAGS  :=-DWIN32 -D_DEBUG -D_CONSOLE -DVSTOMAKE_RUN_TESTS
+DebugWin32Build:CURRENT_CPPFLAGS  :=-DWIN32 -D_DEBUG -D_CONSOLE -DVSTOMAKE_RUN_TESTS -DRAPIDXML_NO_EXCEPTIONS
 DebugWin32Build:CURRENT_TARGET    :=$(PROJECT_NAME)
 DebugWin32Build:DebugWin32Stats $(DebugWin32_OBJS)
-	$(CXX) $(LDFLAGS)  $(DebugWin32_OBJS) -o $(TARGET)
+	$(CXX)  $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS)  $(DebugWin32_OBJS) -o $(TARGET)
 
 
 DebugWin32: DebugWin32Prebuild DebugWin32Build 
@@ -83,22 +93,29 @@ clean.DebugWin32:
 ####      Platform:  ####
 ReleaseWin32_SRCS :=\
 internal.cc\
+libvs.cc\
+libvs_private.cc\
 make_file.cc\
-msvc_object_model.cc\
+msbuild_parser.cc\
+output_option.cc\
 precompiled.cc\
 project_parser.cc\
 utility.cc\
 vcclcompilertool.cc\
 vclinkertool.cc\
-vcproj_parser.cc\
-vcxproj_parser.cc\
+vcproject_parser.cc\
+vcproject_parser_tests.cc\
 vstomake_main.cc
 ReleaseWin32Stats:
 	@echo "Configuration: Release|Win32"
 	@echo "CPPFLAGS:     " $(CPPFLAGS)
 	@echo "CFLAGS:       " $(CFLAGS)
 	@echo "CXXFLAGS:     " $(CXXFLAGS)
-	@printf "Intermediates: %s \nOutputs: %s \nTarget: %s \n\n" $(INTDIR) $(OUTDIR) $(TARGET)
+	@echo "ARFLAGS:      " $(ARFLAGS)
+	@echo "LDFLAGS:      " $(LDFLAGS)
+	@echo "Intermediates:" $(INTDIR)
+	@echo "Outputs:      " $(OUTDIR)
+	@echo "Target:       " $(TARGET)
 
 ReleaseWin32_OBJS := $(patsubst %.cc,../bin/Release/obj/%.o,$(notdir $(ReleaseWin32_SRCS)))
 ReleaseWin32_OBJS := $(patsubst %.cpp,../bin/Release/obj/%.o,$(ReleaseWin32_OBJS))
@@ -113,13 +130,16 @@ ReleaseWin32Prebuild:
 	@mkdir -p ../bin/Release/obj
 	@mkdir -p ../bin/Release
 
+./precompiled.h.gch:
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ./precompiled.cc -o ./precompiled.h.gch
+
 ReleaseWin32Build:CURRENT_OUTDIR    :=../bin/Release
 ReleaseWin32Build:CURRENT_INTDIR    :=../bin/Release/obj
 ReleaseWin32Build:CURRENT_CXXFLAGS  := -include precompiled.h -I../external
-ReleaseWin32Build:CURRENT_CPPFLAGS  :=-DWIN32 -DNDEBUG -D_CONSOLE
+ReleaseWin32Build:CURRENT_CPPFLAGS  :=-DWIN32 -DNDEBUG -D_CONSOLE -D_CRT_SECURE_NO_WARNINGS
 ReleaseWin32Build:CURRENT_TARGET    :=$(PROJECT_NAME)
 ReleaseWin32Build:ReleaseWin32Stats $(ReleaseWin32_OBJS)
-	$(CXX) $(LDFLAGS)  $(ReleaseWin32_OBJS) -o $(TARGET)
+	$(CXX)  $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS)  $(ReleaseWin32_OBJS) -o $(TARGET)
 
 
 ReleaseWin32: ReleaseWin32Prebuild ReleaseWin32Build 

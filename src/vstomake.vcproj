@@ -44,7 +44,7 @@
 				AdditionalOptions="/MP2"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\external"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;VSTOMAKE_RUN_TESTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;VSTOMAKE_RUN_TESTS;RAPIDXML_NO_EXCEPTIONS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				RuntimeTypeInfo="false"
@@ -123,7 +123,7 @@
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="..\external"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="1"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
@@ -180,103 +180,123 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\internal.cc"
-			>
-		</File>
-		<File
 			RelativePath=".\internal.h"
 			>
+			<File
+				RelativePath=".\internal.cc"
+				>
+			</File>
 		</File>
 		<File
-			RelativePath=".\make_file.cc"
+			RelativePath=".\libvs.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\libvs.h"
+			>
+		</File>
+		<File
+			RelativePath=".\libvs_private.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\libvs_private.h"
 			>
 		</File>
 		<File
 			RelativePath=".\make_file.h"
 			>
-		</File>
-		<File
-			RelativePath=".\msvc_object_model.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\msvc_object_model.h"
-			>
-		</File>
-		<File
-			RelativePath=".\precompiled.cc"
-			>
-			<FileConfiguration
-				Name="Debug|Win32"
+			<File
+				RelativePath=".\make_file.cc"
 				>
-				<Tool
-					Name="VCCLCompilerTool"
-					UsePrecompiledHeader="1"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|Win32"
+			</File>
+		</File>
+		<File
+			RelativePath=".\msbuild_parser.h"
+			>
+			<File
+				RelativePath=".\msbuild_parser.cc"
 				>
-				<Tool
-					Name="VCCLCompilerTool"
-					UsePrecompiledHeader="1"
-				/>
-			</FileConfiguration>
+			</File>
+		</File>
+		<File
+			RelativePath=".\output_option.cc"
+			>
+		</File>
+		<File
+			RelativePath=".\output_option.h"
+			>
 		</File>
 		<File
 			RelativePath=".\precompiled.h"
 			>
-		</File>
-		<File
-			RelativePath=".\project_parser.cc"
-			>
+			<File
+				RelativePath=".\precompiled.cc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+			</File>
 		</File>
 		<File
 			RelativePath=".\project_parser.h"
 			>
+			<File
+				RelativePath=".\project_parser.cc"
+				>
+			</File>
 		</File>
 		<File
 			RelativePath=".\string_tokenizer.h"
 			>
 		</File>
 		<File
-			RelativePath=".\utility.cc"
-			>
-		</File>
-		<File
 			RelativePath=".\utility.h"
 			>
-		</File>
-		<File
-			RelativePath=".\vcclcompilertool.cc"
-			>
+			<File
+				RelativePath=".\utility.cc"
+				>
+			</File>
 		</File>
 		<File
 			RelativePath=".\vcclcompilertool.h"
 			>
-		</File>
-		<File
-			RelativePath=".\vclinkertool.cc"
-			>
+			<File
+				RelativePath=".\vcclcompilertool.cc"
+				>
+			</File>
 		</File>
 		<File
 			RelativePath=".\vclinkertool.h"
 			>
+			<File
+				RelativePath=".\vclinkertool.cc"
+				>
+			</File>
 		</File>
 		<File
-			RelativePath=".\vcproj_parser.cc"
+			RelativePath=".\vcproject_parser.h"
 			>
+			<File
+				RelativePath=".\vcproject_parser.cc"
+				>
+			</File>
 		</File>
 		<File
-			RelativePath=".\vcproj_parser.h"
-			>
-		</File>
-		<File
-			RelativePath=".\vcxproj_parser.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\vcxproj_parser.h"
+			RelativePath=".\vcproject_parser_tests.cc"
 			>
 		</File>
 		<File

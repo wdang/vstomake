@@ -1,5 +1,5 @@
 #include "precompiled.h"
-#include "vcxproj_parser.h"
+#include "msbuild_parser.h"
 #include "utility.h"
 
 #include <functional>
@@ -64,10 +64,10 @@ static const char* const kProjectMacros2010[] = {
   "$(WebDeployRoot)",
 };
 
-VcxprojParser::VcxprojParser()
+MSBuildParser::MSBuildParser()
   : doc() {}
 
-bool VcxprojParser::Parse(char* buffer, size_t len) {
+bool MSBuildParser::Parse(char* buffer, size_t len) {
   macros.clear();
 
   for(size_t i = 0; i < ARRAY_COUNT(kProjectMacros2010); ++i) {
@@ -84,11 +84,15 @@ bool VcxprojParser::Parse(char* buffer, size_t len) {
   return project !=NULL;
 }
 
-bool VcxprojParser::Configurations(vector<VCConfiguration>* out) {
+bool MSBuildParser::Parse( const std::string& ){
+  return false;
+}
+
+bool MSBuildParser::Configurations(vector<vs::Configuration>* out) {
   if(!project || !project->first_node("ItemGroup"))
     return false;
 
-  static const int kNameOffset   = sizeof("'$(Configuration)|$(Platform)'=='");
+  //static const int kNameOffset   = sizeof("'$(Configuration)|$(Platform)'=='");
   XMLNode* project_configuration = 0;
   XMLNode* current = project->first_node("ItemGroup");
   while(current) {
@@ -97,7 +101,7 @@ bool VcxprojParser::Configurations(vector<VCConfiguration>* out) {
     current = current->next_sibling();
   }
 
-  function<VCConfiguration*(const char*)> GetVCConfigurationPointer = [=](const char* name)->VCConfiguration* {
+  function<vs::Configuration*(const char*)> GetVCConfigurationPointer = [=](const char* name)->vs::Configuration* {
     for(size_t i = 0, end = out->size(); i <  end; ++i) {
       if((*out)[i].Name.compare(name) == 0)
         return &(*out)[i];
@@ -107,7 +111,7 @@ bool VcxprojParser::Configurations(vector<VCConfiguration>* out) {
 
   while(project_configuration) {
     XMLAttribute* include = project_configuration->first_attribute("Include");
-    VCConfiguration config;
+    vs::Configuration config;
     config.Name.assign(include ? include->value() : "");
 
     XMLNode* node = project_configuration->first_node("Configuration");
@@ -126,10 +130,10 @@ bool VcxprojParser::Configurations(vector<VCConfiguration>* out) {
     if(XMLAttribute* label = current->first_attribute("Label")) {
       if(strcmp(label->value(), "Configuration") == 0) {
 
-        if(XMLNode* node = current->first_node("ConfigurationType")) {
+        if(current->first_node("ConfigurationType")) {
           // not implemented
         }
-        if(XMLNode* node = current->first_node("CharacterSet")) {
+        if(current->first_node("CharacterSet")) {
           // not implemented
         }
       }
@@ -141,7 +145,7 @@ bool VcxprojParser::Configurations(vector<VCConfiguration>* out) {
   return false;
 }
 
-bool VcxprojParser::Files(vector<VCFile>* files) {
+bool MSBuildParser::Files(vector<vs::File>* files) {
   if(!project || !project->first_node("ItemGroup"))
     return false;
 
@@ -149,10 +153,10 @@ bool VcxprojParser::Files(vector<VCFile>* files) {
   while(item_group) {
     if(XMLNode* cinclude = item_group->first_node("CInclude")) {
       if(XMLAttribute* include = cinclude->first_attribute("Include")) {
-        VCFile file;
+        vs::File file;
         file.RelativePath.assign(include->value());
-        file.PrecompiledHeader = cinclude->first_node("PrecompiledHeader") != 0;
-        file.PrecompiledHeader = cinclude->first_node("ExcludedFromBuild") != 0;
+        file.Precompiled = cinclude->first_node("PrecompiledHeader") != 0;
+        file.Precompiled = cinclude->first_node("ExcludedFromBuild") != 0;
         files->push_back(file);
       }
     }
@@ -162,22 +166,22 @@ bool VcxprojParser::Files(vector<VCFile>* files) {
   return true;
 }
 
-bool VcxprojParser::Filters(std::vector<VCFilter>*) {
+bool MSBuildParser::Filters(std::vector<vs::Filter>*) {
   return false;
 }
 
-bool VcxprojParser::CompilerProperties(const string&, unordered_map<string, string>*) {
+bool MSBuildParser::CompilerProperties(const string&, unordered_map<string, string>*) {
   return false;
 }
 
-bool VcxprojParser::LibrarianProperties(const string&, unordered_map<string, string>*) {
+bool MSBuildParser::LibrarianProperties(const string&, unordered_map<string, string>*) {
   return false;
 }
 
-bool VcxprojParser::LinkerProperties(const string&, unordered_map<string, string>*) {
+bool MSBuildParser::LinkerProperties(const string&, unordered_map<string, string>*) {
   return false;
 }
 
-bool VcxprojParser::ProjectProperties(std::unordered_map<std::string, std::string>*) {
+bool MSBuildParser::ProjectProperties(std::unordered_map<std::string, std::string>*) {
   return false;
 }

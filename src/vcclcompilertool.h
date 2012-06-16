@@ -16,6 +16,7 @@
 #include <unordered_map>
 #include <string>
 
+namespace vs {
 // VCCLCompilerTool is for convienent access
 // to the VCCLCompilerTool properties of a project configuration.
 struct VCCLCompilerTool {
@@ -213,8 +214,9 @@ struct VCCLCompilerTool {
   const char* XMLDocumentationFileName() const;
 
  private:
-  friend struct VCProject;
-  friend struct VCConfiguration;  
+  friend struct Project;
+  friend struct Configuration;
   VCCLCompilerTool();
   const std::unordered_map<std::string, std::string>* properties;
 };
+}

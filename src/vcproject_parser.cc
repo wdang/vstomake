@@ -1,5 +1,5 @@
 #include "precompiled.h"
-#include "vcproj_parser.h"
+#include "vcproject_parser.h"
 #include "utility.h"
 #include "string_tokenizer.h"
 
@@ -8,18 +8,18 @@
 //#pragma warning(disable: 4706)
 #endif
 
+using std::back_inserter;
+using std::copy;
+using std::copy_if;
 using std::function;
-using std::make_pair;
-using std::string;
 using std::ifstream;
-using std::vector;
-using std::unordered_map;
-using std::remove_if;
 using std::make_pair;
 using std::move;
-using std::back_inserter;
-using std::exception;
-using std::copy;
+using std::remove_if;
+using std::string;
+using std::unordered_map;
+using std::vector;
+
 namespace {
 typedef rapidxml::xml_document<>           XMLDocument;
 typedef rapidxml::xml_node<>               XMLNode;
@@ -78,6 +78,24 @@ static const char* const kProjectMacros2008[] = {
   "$(WebDeployRoot)"
 };
 
+void FilterByNodeName(const string& name, XMLNode* node, vector<XMLNode*>& vec){
+    if(!node) return;
+    if(name.compare(node->name()) == 0) {
+      vec.push_back(node);
+    }
+    FilterByNodeName(name, node->next_sibling(),vec);
+    FilterByNodeName(name, node->first_node(),vec);
+}
+
+void FilterByAttribute(const string& name, const string& value, XMLNode* node, vector<XMLNode*>& vec){
+    if(!node) return;
+     if(XMLAttribute* attr = node->first_attribute(name.c_str())) {
+      if(value.compare(attr->value()) == 0)
+        vec.push_back(node);
+    }
+    FilterByAttribute(name, value, node->next_sibling(),vec);
+    FilterByAttribute(name, value, node->first_node(),vec);
+}
 
 // Traverse all 'Filter' and 'File' nodes and
 // return a flat structure containing only "File" nodes
@@ -85,11 +103,12 @@ static void CollectFileNodes(const XMLNode* node, std::vector<const XMLNode*>* o
   if(!node) return;
   // id File nodes by the existance of a 'RelativePath' attribute
   // id Filter nodes by the existance of a 'Name' attribute
-  if(const XMLAttribute* attr = node->first_attribute("Name")) {
+  if(node->first_attribute("Name")) {
     CollectFileNodes(node->first_node(), out);
     CollectFileNodes(node->next_sibling(), out);
-  } else if(const XMLAttribute* attr = node->first_attribute("RelativePath")) {
+  } else if(node->first_attribute("RelativePath")) {
     out->push_back(node);
+    CollectFileNodes(node->first_node(), out);
     CollectFileNodes(node->next_sibling(), out);
   }
 }
@@ -107,28 +126,26 @@ static void ExpandMacros(string* input, const MacroMap& macros) {
   }
 }
 
-// Returns a map of all tool properties identified by toolname
-// for the specified configuration 'name'
-bool GetToolPropertiesForConfiguration(const string& name, const string& toolname,
-                                       XMLNode* configurations, unordered_map<string, string>* props) {
-  if(!configurations->first_node("Configuration"))
-    return false;
+void CollectToolProperties(XMLNode* tool,
+                           unordered_map<string, unordered_map<string, string> >& properties, const MacroMap& macros) {
 
-  XMLNode* configuration = configurations->first_node("Configuration");
-
-  // find matching configuration
-  while(configuration) {    
-    XMLAttribute* attr = configuration->first_attribute("Name");
-    if(attr && name.compare(attr->value()) == 0) { 
-      break;
+  while(tool) {
+    XMLAttribute* attr   = tool->first_attribute("Name");
+    const char* toolname = attr->value();
+    attr = attr->next_attribute();
+    while(attr) {
+      string value(attr->value());
+      ExpandMacros(&value, macros);
+      properties[toolname].insert(make_pair(attr->name(), value));
+      attr = attr->next_attribute();
     }
-    configuration = configuration->next_sibling();
+    tool = tool->next_sibling();
   }
+}
 
-  if(!configuration)
-    return false;
-
-  XMLNode* tool = configuration->first_node("Tool");
+// Returns a map of all tool properties identified
+// by toolname
+bool GetToolPropertiesForTool(const string& toolname, XMLNode* tool, unordered_map<string, string>* props) {
   while(tool) {
     XMLAttribute* attr = tool->first_attribute("Name");
     if(attr  && (toolname.compare(attr->value()) == 0)) {
@@ -141,18 +158,36 @@ bool GetToolPropertiesForConfiguration(const string& name, const string& toolnam
     }
     tool = tool->next_sibling();
   }
-
   return tool != 0;
 }
 
-VcprojParser::VcprojParser()
+// Returns a map of all tool properties identified by toolname
+// for the specified configuration 'name'
+bool GetToolPropertiesForConfiguration(const string& name, const string& toolname,
+                                       XMLNode* configuration, unordered_map<string, string>* props) {
+
+  while(configuration) {
+    if(XMLAttribute* attr = configuration->first_attribute("Name")) {
+      if(name.compare(attr->value()) == 0)
+        break;
+    }
+    configuration = configuration->next_sibling();
+  }
+
+  if(!configuration)
+    return false;
+
+  return GetToolPropertiesForTool(toolname, configuration->first_node("Tool"), props);
+}
+
+VCProjectParser::VCProjectParser()
   : root(0) {
   for(size_t i = 0; i < ARRAY_COUNT(kProjectMacros2008); ++i) {
     macros.insert(make_pair(kProjectMacros2008[i], ""));
   }
 }
 
-bool VcprojParser::ProjectProperties(unordered_map<string, string>* props) {
+bool VCProjectParser::ProjectProperties(unordered_map<string, string>* props) {
 
   static const char* kGlobalProperties[] = {
     "Name",
@@ -167,40 +202,61 @@ bool VcprojParser::ProjectProperties(unordered_map<string, string>* props) {
     XMLAttribute* attr = root->first_attribute(kGlobalProperties[i]);
     props->insert(make_pair(kGlobalProperties[i], attr ? attr->value() : ""));
   }
+
+  size_t sep = origin.find_last_of("\\/");
+
+  if(sep != string::npos) {
+    macros["$(ProjectDir)"].assign(origin.substr(0, sep));
+
+    // we don't know SolutionDir yet
+    macros["$(SolutionDir)"].assign(origin.substr(0, sep));
+  } else {
+    macros["$(SolutionDir)"].assign(".");
+  }
+
   macros["$(InputName)"]   = (*props)["Name"];
   macros["$(ProjectName)"] = (*props)["Name"];
   macros["$(TargetName)"]  = (*props)["Name"];
   return true;
 }
 
-bool VcprojParser::CompilerProperties(const string& config,
+bool VCProjectParser::CompilerProperties(const string& config,
                                       unordered_map<string, string>* props) {
   if(!root->first_node("Configurations"))
     return false;
+
   XMLNode* configurations = root->first_node("Configurations");
-  return GetToolPropertiesForConfiguration(config, "VCCLcompilerTool", configurations, props);
+  if(!configurations)
+    return false;
+  return GetToolPropertiesForConfiguration(config, "VCCLcompilerTool", configurations->first_node("Configuration"), props);
 }
 
-bool VcprojParser::LibrarianProperties(const string& config,
+bool VCProjectParser::LibrarianProperties(const string& config,
                                        unordered_map<string, string>* props) {
   if(!root->first_node("Configurations"))
     return false;
+
   XMLNode* configurations = root->first_node("Configurations");
-  return GetToolPropertiesForConfiguration(config, "VCLibrarianTool", configurations, props);
+  if(!configurations)
+    return false;
+  return GetToolPropertiesForConfiguration(config, "VCLibrarianTool", configurations->first_node("Configuration"), props);
 }
 
-bool VcprojParser::LinkerProperties(const string& config,
+bool VCProjectParser::LinkerProperties(const string& config,
                                     unordered_map<string, string>* props) {
   if(!root->first_node("Configurations"))
     return false;
+
   XMLNode* configurations = root->first_node("Configurations");
-  return GetToolPropertiesForConfiguration(config, "VCLinkerTool", configurations, props);
+  if(!configurations)
+    return false;
+  return GetToolPropertiesForConfiguration(config, "VCLinkerTool", configurations->first_node("Configuration"), props);
 }
 
-bool VcprojParser::Configurations(vector<VCConfiguration>* configurations) {
+bool VCProjectParser::Configurations(vector<vs::Configuration>* configurations) {
   if(!root->first_node("Configurations"))
     return false;
-  
+
   XMLNode* node = root->first_node("Configurations")->first_node();
 
   while(node) {
@@ -208,7 +264,7 @@ bool VcprojParser::Configurations(vector<VCConfiguration>* configurations) {
     string intermediate_dir("");
     string property_sheets("");
 
-    VCConfiguration config;
+    vs::Configuration config;
 
     if(XMLAttribute* attr = node->first_attribute("Name")) {
       config.Name.assign(attr->value());
@@ -239,7 +295,55 @@ bool VcprojParser::Configurations(vector<VCConfiguration>* configurations) {
 
 
     if(XMLAttribute* attr = node->first_attribute("ConfigurationType")) {
-      config.ConfigurationType = (VCConfiguration::Type)strtol(attr->value(), 0, 10);
+      config.ConfigurationType = (vs::Enum::Type)strtol(attr->value(), 0, 10);
+      
+    }
+
+
+    // Collect tool properties
+    CollectToolProperties(node->first_node("Tool"), config.ToolProperties, macros);
+
+    if(XMLAttribute* attr = node->first_attribute("InheritedPropertySheets")) {
+      char* ptr = strtok(attr->value(), ";");
+
+      while(ptr != NULL) {
+        std::string path(ptr);
+        ExpandMacros(&path, macros);
+
+
+        // the property sheet path is relative to the path of project file
+        size_t sep = origin.find_last_of("\\/");
+        if(sep != string::npos) {
+          std::string vsprops_path(origin.substr(0, sep+1));
+          vsprops_path.append(path);
+          path.assign(AbsoluteFilePath(vsprops_path));
+        } else {
+          path.assign(AbsoluteFilePath(path));
+        }
+
+        config.PropertySheets.push_back(path);
+        // apply property sheets for now properties in property
+        // sheets override the existing tool properties.
+        string buffer("");
+        if(FileToString(path, &buffer)) {
+          XMLDocument vsprops;
+          vsprops.parse<0>(&buffer[0]);
+          XMLNode* props = vsprops.first_node("VisualStudioPropertySheet");
+          if(XMLAttribute* props_attr  = props->first_attribute("OutputDirectory")) {
+            output_dir.assign(props_attr->value());
+          }
+          if(XMLAttribute* props_attr  = props->first_attribute("IntermediateDirectory")) {
+            intermediate_dir.assign(props_attr->value());
+          }
+
+
+
+
+
+          CollectToolProperties(props->first_node("Tool"), config.ToolProperties, macros);
+        }
+        ptr = strtok(NULL, ";");
+      }
     }
 
     ExpandMacros(&output_dir, macros);
@@ -248,22 +352,6 @@ bool VcprojParser::Configurations(vector<VCConfiguration>* configurations) {
 
     config.IntermediateDirectory.assign(intermediate_dir);
     config.OutputDirectory.assign(output_dir);
-    config.PropertySheets.assign(property_sheets);
-
-    // Collect tool properties
-    XMLNode* tool = node->first_node("Tool");
-    while(tool) {
-      XMLAttribute* attr   = tool->first_attribute("Name");
-      const char* toolname = attr->value();
-      attr = attr->next_attribute();
-      while(attr) {
-        string value(attr->value());
-        ExpandMacros(&value, macros);
-        config.ToolProperties[toolname].insert(make_pair(attr->name(), value));
-        attr = attr->next_attribute();
-      }
-      tool = tool->next_sibling();
-    }
 
     configurations->push_back(move(config));
     node = node->next_sibling();
@@ -273,11 +361,11 @@ bool VcprojParser::Configurations(vector<VCConfiguration>* configurations) {
   return true;
 }
 
-bool VcprojParser::Filters(vector<VCFilter>*) {
+bool VCProjectParser::Filters(vector<vs::Filter>*) {
   return false;
 }
-
-bool VcprojParser::Files(vector<VCConfiguration>* configurations, vector<VCFile>* files) {
+#if 0
+bool VCProjectParser::Files(vector<vs::Configuration>* configurations, vector<vs::File>* files) {
   if(!root->first_node("Files")) return false;
 
   vector<const XMLNode*> file_nodes;
@@ -286,7 +374,7 @@ bool VcprojParser::Files(vector<VCConfiguration>* configurations, vector<VCFile>
   if(file_nodes.empty()) return false;
 
   // alternative name for easier access to operator[]
-  vector<VCConfiguration>& configs = *configurations;
+  vector<vs::Configuration>& configs = *configurations;
 
 
   // reserve each configuration's file list
@@ -300,10 +388,14 @@ bool VcprojParser::Files(vector<VCConfiguration>* configurations, vector<VCFile>
     const XMLAttribute* attr = node->first_attribute("RelativePath");
     if(!attr) continue;
 
-    VCFile file;
+    vs::File file;
+    file.Precompiled = false;
+    file.CompileAsC = false;
+    file.ForcedInclude = false;
+    
     // build a list of configurations that will
     // reference the VCFile
-    vector<VCConfiguration*> targets;
+    vector<vs::Configuration*> targets;
     for(size_t i = 0, end = configs.size(); i < end; ++i) {
       targets.push_back(&configs[i]);
     }
@@ -319,22 +411,22 @@ bool VcprojParser::Files(vector<VCConfiguration>* configurations, vector<VCFile>
       // from the list of targets
       // since the vcfile is ExcludedFromBuild
       const XMLAttribute* config_name = file_configuration->first_attribute("Name");
-      if(const XMLAttribute* excluded = file_configuration->first_attribute("ExcludedFromBuild")) {
+      if(file_configuration->first_attribute("ExcludedFromBuild")) {
         file.Excluded.push_back(config_name->value());
         auto pos = std::remove_if(targets.begin(), targets.end(),
-        [=](VCConfiguration* ptr)->bool {
+        [=](vs::Configuration* ptr)->bool {
           return ptr->Name.compare(config_name->value())==0;
         });
 
         targets.erase(pos, targets.end());
       }
 
-      // PrecompiledHeader only describes the source file (.cpp,cc, etc)
+      // Precompiled only describes the source file (.cpp,cc, etc)
       // that created the compiled header(.pch)
       if(const XMLNode* tool = file_configuration->first_node("Tool")) {
 
-        if(auto* use_precompiled_header = tool->first_attribute("UsePrecompiledHeader")) {
-          file.PrecompiledHeader = true;
+        if(tool->first_attribute("UsePrecompiledHeader")) {
+          file.Precompiled = true;
         }
 
         if(const XMLAttribute* compile_as_c = tool->first_attribute("CompileAs")) {
@@ -348,7 +440,7 @@ bool VcprojParser::Files(vector<VCConfiguration>* configurations, vector<VCFile>
 
     if(const XMLNode* parent = node->parent()) {
       if(strcmp(parent->name(), "Filter") == 0) {
-        file.Filter.assign(parent->first_attribute("Name")->value());
+        //file.Filter.assign(parent->first_attribute("Name")->value());
       }
     }
 
@@ -368,7 +460,7 @@ bool VcprojParser::Files(vector<VCConfiguration>* configurations, vector<VCFile>
     // files is reserved, no re-allocations
     // should ever take place
     files->push_back(move(file));
-    VCFile* file_ptr = &(*(files->end() - 1));
+    vs::File* file_ptr = &(*(files->end() - 1));
 
     for(size_t i = 0, end = targets.size(); i < end; ++i) {
       targets[i]->Files.push_back(file_ptr);
@@ -379,7 +471,8 @@ bool VcprojParser::Files(vector<VCConfiguration>* configurations, vector<VCFile>
   return true;
 }
 
-bool VcprojParser::Files(std::vector<VCFile>* files) {
+#endif
+bool VCProjectParser::Files(std::vector<vs::File>* files) {
   if(!root->first_node("Files")) return false;
 
   vector<const XMLNode*> file_nodes;
@@ -393,15 +486,19 @@ bool VcprojParser::Files(std::vector<VCFile>* files) {
     const XMLAttribute* attr = node->first_attribute("RelativePath");
     if(!attr) continue;
 
-    VCFile file;
+    vs::File file;
+    file.Precompiled = false;
+    file.CompileAsC = false;
+    file.ForcedInclude = false;
+    
 
     file.RelativePath.assign(attr->value());
     file.AbsolutePath.assign(AbsoluteFilePath(file.RelativePath));
     size_t separator = file.RelativePath.find_last_of("\\/");
     if(separator == string::npos) {
-      file.Filename.assign(attr->value());
+      file.Name.assign(attr->value());
     } else {
-      file.Filename.assign(file.RelativePath.substr(separator+1));
+      file.Name.assign(file.RelativePath.substr(separator+1));
     }
 
 
@@ -413,7 +510,7 @@ bool VcprojParser::Files(std::vector<VCFile>* files) {
       // from the list of targets
       // since the vcfile is ExcludedFromBuild
       const XMLAttribute* config_name = file_configuration->first_attribute("Name");
-      if(const XMLAttribute* excluded = file_configuration->first_attribute("ExcludedFromBuild")) {
+      if(file_configuration->first_attribute("ExcludedFromBuild")) {
         file.Excluded.push_back(config_name->value());
         //        auto pos = std::remove_if(targets.begin(), targets.end(),
         //    [=](VCConfiguration* ptr)->bool {
@@ -423,13 +520,10 @@ bool VcprojParser::Files(std::vector<VCFile>* files) {
         // targets.erase(pos, targets.end());
       }
 
-      // PrecompiledHeader only describes the source file (.cpp,cc, etc)
+      // Precompiled only describes the source file (.cpp,cc, etc)
       // that created the compiled header(.pch)
       if(const XMLNode* tool = file_configuration->first_node("Tool")) {
-
-        if(auto* use_precompiled_header = tool->first_attribute("UsePrecompiledHeader")) {
-          file.PrecompiledHeader = true;
-        }
+        file.Precompiled = tool->first_attribute("UsePrecompiledHeader") != 0;
 
         if(const XMLAttribute* compile_as_c = tool->first_attribute("CompileAs")) {
           file.CompileAsC = strcmp(compile_as_c->value(), "1") == 0;
@@ -442,7 +536,7 @@ bool VcprojParser::Files(std::vector<VCFile>* files) {
 
     if(const XMLNode* parent = node->parent()) {
       if(strcmp(parent->name(), "Filter") == 0) {
-        file.Filter.assign(parent->first_attribute("Name")->value());
+//        file.Filter.assign(parent->first_attribute("Name")->value());
       }
     }
     // files is reserved, no re-allocations
@@ -454,9 +548,8 @@ bool VcprojParser::Files(std::vector<VCFile>* files) {
   return true;
 }
 
-bool VcprojParser::Parse(char* buffer, size_t len) {
+bool VCProjectParser::Parse(char* buffer, size_t len) {
   root = 0;
-
   macros.clear();
   for(size_t i = 0; i < ARRAY_COUNT(kProjectMacros2008); ++i) {
     macros.insert(make_pair(kProjectMacros2008[i], string("")));
@@ -469,107 +562,35 @@ bool VcprojParser::Parse(char* buffer, size_t len) {
 
   doc.parse<0>(&src[0]);
   root = doc.first_node("VisualStudioProject");
+  
+  configurations.clear();
+  files.clear();
+  
+  FilterByNodeName("File",root,files);
+  FilterByNodeName("Configuration",root,configurations);
 
   return root != 0;
 }
-#ifdef VSTOMAKE_RUN_TESTS
-#include <gtest/gtest.h>
-#include <fstream>
-namespace {
 
-// VCProjectTest Test fixture.
-class TestVcprojParser : public ::testing::Test {
-protected:
-
-  // Initialize static data.
-  static void SetUpTestCase() {
-
-    ifstream fs("testing\\base.vcproj",
-                std::ios::in | std::ios::binary | std::ios::ate);
-
-    const int64_t size = fs.tellg();
-    ASSERT_TRUE(size  != -1);
-    ASSERT_TRUE(fs.is_open());
-    for(size_t i = 0; i < size; ++i) {
-      Contents.push_back('\0');
-    }
-
-    fs.seekg(0, std::ios::beg);
-    fs.read(&Contents[0], Contents.size());
-    fs.close();
+bool VCProjectParser::Parse(const std::string& path) {
+  origin.assign(path);
+  string buffer("");
+  FileToString(path, &buffer);
+  root = 0;
+  macros.clear();
+  for(size_t i = 0; i < ARRAY_COUNT(kProjectMacros2008); ++i) {
+    macros.insert(make_pair(kProjectMacros2008[i], string("")));
   }
 
-  // Set-up work for each test.
-  TestVcprojParser() {}
+  macros["$(ProjectDir)"].assign(path);
 
-  // Called before each test(after the constructor).
-  virtual void SetUp() {}
+  src.clear();
+  src.reserve(buffer.length());
+  copy(buffer.begin(), buffer.end(), back_inserter(src));
+  src.push_back('\0');
 
-  // Called after each test(before the destructor).
-  virtual void TearDown() {}
+  doc.parse<0>(&src[0]);
+  root = doc.first_node("VisualStudioProject");
 
-  // no throw
-  virtual ~TestVcprojParser() {}
-
-  // Cleanup static data.
-  static void TearDownTestCase() {}
-
-  static string Contents;
-  static VcprojParser Parser;
-};
-
-string TestVcprojParser::Contents("");
-VcprojParser TestVcprojParser::Parser;
-
-TEST_F(TestVcprojParser, Parse) {
-  EXPECT_TRUE(Parser.Parse(&Contents[0], Contents.size()));
-
-  //EXPECT_EQ(config.Files.size(), 327);
-  //EXPECT_EQ(project.Files.size(),446);
+  return root != 0;
 }
-
-TEST_F(TestVcprojParser, Configurations) {
-  EXPECT_TRUE(Parser.Parse(&Contents[0], Contents.size()));
-  
-  vector<VCConfiguration> configs;
-  EXPECT_TRUE(Parser.Configurations(&configs));
-  
-  EXPECT_EQ(configs.size(), 4);
-}
-
-TEST_F(TestVcprojParser, Files) {
-  EXPECT_TRUE(Parser.Parse(&Contents[0], Contents.size()));
-  vector<VCConfiguration> configs;
-  EXPECT_TRUE(Parser.Configurations(&configs));
-
-  vector<VCFile> files;
-  EXPECT_TRUE(Parser.Files(&configs, &files));
-  //EXPECT_EQ(config.Files.size(), 327);
-  EXPECT_EQ(files.size(), 446);
-}
-
-TEST_F(TestVcprojParser, Filters) {
-  EXPECT_TRUE(Parser.Parse(&Contents[0], Contents.size()));
-
-  //EXPECT_EQ(config.Files.size(), 327);
-  //EXPECT_EQ(project.Files.size(),446);
-}
-
-TEST_F(TestVcprojParser, ProjectProperties) {
-  EXPECT_TRUE(Parser.Parse(&Contents[0], Contents.size()));
-  unordered_map<string, string> props;
-  Parser.ProjectProperties(&props);
-
-  //EXPECT_EQ(config.Files.size(), 327);
-  //EXPECT_EQ(project.Files.size(),446);
-}
-
-
-TEST_F(TestVcprojParser, Other) {
-  VCProject proj("testing\\base.vcproj");
-
-  //EXPECT_EQ(config.Files.size(), 327);
-  //EXPECT_EQ(project.Files.size(),446);
-}
-} //namespace
-#endif

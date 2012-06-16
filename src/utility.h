@@ -13,16 +13,17 @@
 // limitations under the License.
 #pragma once
 
-#include <string>
-#include <unordered_map>
-#include <vector>
 #include <fstream>
+#include <string>
+#include <vector>
+#include <unordered_map>
+
+// General string and file utility routines
 
 // Returns the length of the given array.
 // compile time assertion with "ERROR_Non_Array_Type"
 // if x is not a static array.
 #define ARRAY_COUNT(x) (sizeof(::internal::ERROR_Non_Array_Type(x)))
-
 
 // String search and replace (in place)
 //
@@ -90,7 +91,7 @@ inline bool FileToString(const std::string& path, std::string* str) {
   if(size == -1) return false; 
   
   str->reserve(static_cast<size_t>(size));
-  for(size_t i = 0; i < size; ++i) {
+  for(int i = 0; i < size; ++i) {
     str->push_back('\0');
   }
   
@@ -109,8 +110,18 @@ inline bool FileToString(const std::string& path, std::string* str) {
   return true;
 }
 
-// Returns the absolute file path of the given path
+// Fast unchecked file to string function.
+// Returns the contents of the file located at path 
+inline std::string FileToString(const std::string& path){
+  return std::string(static_cast<const std::ostringstream&>(std::ostringstream() << std::ifstream(path.c_str()).rdbuf()).str());
+}
+
+// Returns a copy of the given path 
+// string as an absolute file path 
 std::string AbsoluteFilePath(const std::string& path);
+
+
+
 
 namespace internal {
 // ARRAY_COUNT implementation

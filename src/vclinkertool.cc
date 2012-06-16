@@ -13,7 +13,7 @@
 // limitations under the License.
 #include "precompiled.h"
 #include "vclinkertool.h"
-
+namespace vs {
 VCLinkerTool::Enum GetEnum(const std::string&){
   return VCLinkerTool::Enum_Unknown;
 }
@@ -136,3 +136,4 @@ X(toolName)
 VCLINKERTOOL_STRING_ACCESSORS
 #undef X
 
+}
