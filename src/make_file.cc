@@ -132,6 +132,8 @@ MakefileGen::MakefileGen(const vs::Project& project)
 }
 
 void MakefileGen::Initialize(const vs::Configuration& config) {
+  config_name.assign(config.ConfigurationName);
+  config_platform.assign(config.Platform);
   intdir.assign(ToUnixPaths(config.IntermediateDirectory));
   outdir.assign(ToUnixPaths(config.OutputDirectory));
   rule.assign(config.ConfigurationName + config.Platform);

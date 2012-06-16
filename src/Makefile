@@ -32,8 +32,8 @@ Debug: DebugWin32
 
 Release: ReleaseWin32
 
-#### Configuration:  ####
-####      Platform:  ####
+#### Configuration: Debug ####
+####      Platform: Win32 ####
 DebugWin32_SRCS :=\
 internal.cc\
 libvs.cc\
@@ -89,8 +89,8 @@ DebugWin32: DebugWin32Prebuild DebugWin32Build
 clean.DebugWin32:
 	@rm -vf $(DebugWin32_OBJS)
 
-#### Configuration:  ####
-####      Platform:  ####
+#### Configuration: Release ####
+####      Platform: Win32 ####
 ReleaseWin32_SRCS :=\
 internal.cc\
 libvs.cc\
