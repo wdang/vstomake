@@ -32,50 +32,52 @@ using std::make_pair;
 
 
 // @@ kDocumentation
-static const char kDocumentation[] =
-  "vstomake: Convert Visual Studio project file(s) to a GNU Makefile.\n\
-Usage:\n\
-  vstomake [input] [directory=./] | [option] [configuration name]\n\
+static const char kDocumentation[] ="\
+Makefile generation:\n\
+  vstomake [input] [directory=./]\n\
+Console output:\n\
+  vstomake [input] [option] [configuration name]\n\
 \n\
   [input]\n\
-    *.vcproj\n\
+    A vcproj file\n\
 \n\
   [directory]\n\
-        Output directory. Current directory is the default.\n\
-      Any file named \"Makefile\" within the specified directory\n\
-      will be overwritten. Please omit trailing slashes.\n\
+    Output directory. Current directory is the default.\n\
+  Any file named \"Makefile\" within the specified directory\n\
+  will be overwritten. Please omit trailing slashes.\n\
 \n\
-[option=prefix]\n\
-        Specifying options will output properties of the given project file and configuration instead\n\
-      of writing a Makefile. An optional prefix can be supplied in the form:\n\
-        -option=prefix\n\
-      where option is any of the following options and prefix is a user defined string\n\ that may contain\n\
-      any macros listed in [macros]\n\
-      Unless the -a option is given, the last command line option is expected to be a valid configuration name. \n\
-        Example:\n\
-          vstomake vstomake.vcproj -D=\"$(CPPFLAGS) =\" \"Debug|Win32\"\n\
-        Output:\n\n\
-          $(CPPFLAGS) =-DWIN32 -D_DEBUG -D_CONSOLE -DVSTOMAKE_RUN_TESTS -DRAPIDXML_NO_EXCEPTIONS\n\
-    \n\
+  [option]\n\
+    Outputs properties of the given project file to stdout. An optional \n\
+  prefix may be supplied in the form:\n\
+    -option=prefix\n\
+  where option is any of the following options and prefix is a user\n\
+  defined string that may contain any of the macros listed in [macros]\n\
+  If the -a option is not given then a valid configuration name is\n\
+  expected. \n\n\
+    Example:\n\
+      vstomake vstomake.vcproj -D=\"$(CPPFLAGS) =\" \"Debug|Win32\"\n\
+    Output:\n\
+      $(CPPFLAGS) =-DWIN32 -D_DEBUG -D_CONSOLE -DVSTOMAKE_RUN_TESTS -DRAPIDXML_NO_EXCEPTIONS\n\
+  \n\
     -a           output for all configurations\n\
     -i           forced include files \n\
     -I           external include directories\n\
     -L           external library directories used by the linker\n\
     -l           external libraries passed to the linker\n\
-    -D           macros defined in the specified configuration\n\
+    -D           preprocessor defines in the specified configuration\n\
     -s           sources included in the specified configuration\n\
-    \n\
-    \n\
-[macros]\n\
-         when using an option specifier of the form -option=prefix\n\
-     Any of the following strings found in prefix will be expanded\n\
-     $(Name)          project's name\n\
-     $(Platform)      build platform name\n\
-     $(Configuration) configuration's name\n\
-     $(IntDir)        configuration's intermediate directory\n\
-     $(OutDir)        configuration's output directory\n\
-     $(Target)        configuration's target output name\n\
-   \n";
+  \n\
+  \n\
+  [macros]\n\
+     when using an option specifier of the form -option=prefix\n\
+  The following strings found in prefix will be expanded:\n\n\
+    $(Name)          project's name\n\
+    $(Platform)      build platform name\n\
+    $(Configuration) configuration's name\n\
+    $(IntDir)        configuration's intermediate directory\n\
+    $(OutDir)        configuration's output directory\n\
+    $(Target)        configuration's target output name\n\
+  \n";
 
 int ErrorMessage(const string& msg) {
   puts(msg.c_str());
@@ -109,11 +111,12 @@ int main(int argc, char* argv[]) {
   
   // check input file
   struct stat info;
-  if(stat(argv[1], &info) == 0 && !(info.st_mode & S_IFREG)){
+  int stat_result = stat(argv[1], &info);
+  if(stat_result == 0 && !(info.st_mode & S_IFREG)){
     string err("Invalid input file: ");
     err.append(argv[1]);
     return ErrorMessage(err);
-  }else {
+  }else if(stat_result == -1){
     string err("Non existant file: ");
     err.append(argv[1]);
     return ErrorMessage(err);
