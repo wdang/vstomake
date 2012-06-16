@@ -46,16 +46,16 @@ Usage:\n\
       will be overwritten. Please omit trailing slashes.\n\
 \n\
 [option=prefix]\n\
-        Specifying options will output properties of the given project file\n\
-    instead of writing a makefile. An optional prefix can be supplied in the form:\n\
+        Specifying options will output properties of the given project file and configuration instead\n\
+      of writing a Makefile. An optional prefix can be supplied in the form:\n\
         -option=prefix\n\
-    where options is any of the listed options and prefix is a user defined string\n\
-    or macro listed in the [macro] section\n\
-    Unless the -a option is given, the last command line option is expected to be a valid configuration name. \n\
-    Example:\n\
-        vstomake myproject.vcproj -I=\"$(CXXFLAGS) =\" \"Debug|Win32\"\n\
-    will output:\n\n\
-        $(CXXFLAGS) = -D_DEBUG -D_MY_DEFINES etc. etc.\n\n\
+      where option is any of the following options and prefix is a user defined string\n\ that may contain\n\
+      any macros listed in [macros]\n\
+      Unless the -a option is given, the last command line option is expected to be a valid configuration name. \n\
+        Example:\n\
+          vstomake vstomake.vcproj -D=\"$(CPPFLAGS) =\" \"Debug|Win32\"\n\
+        Output:\n\n\
+          $(CPPFLAGS) =-DWIN32 -D_DEBUG -D_CONSOLE -DVSTOMAKE_RUN_TESTS -DRAPIDXML_NO_EXCEPTIONS\n\
     \n\
     -a           output for all configurations\n\
     -i           forced include files \n\
@@ -68,9 +68,8 @@ Usage:\n\
     \n\
 [macros]\n\
          when using an option specifier of the form -option=prefix\n\
-     if prefix contains any of the following strings, the string will be replaced\n\
-     with the described property.\n\n\
-     $(Name)          project name\n\
+     Any of the following strings found in prefix will be expanded\n\
+     $(Name)          project's name\n\
      $(Platform)      build platform name\n\
      $(Configuration) configuration's name\n\
      $(IntDir)        configuration's intermediate directory\n\
