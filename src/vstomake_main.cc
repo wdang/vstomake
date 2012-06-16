@@ -106,9 +106,21 @@ int main(int argc, char* argv[]) {
     else
       destination.assign(argv[2]);
   }
+  
+  // check input file
+  struct stat info;
+  if(stat(argv[1], &info) == 0 && !(info.st_mode & S_IFREG)){
+    string err("Invalid input file: ");
+    err.append(argv[1]);
+    return ErrorMessage(err);
+  }else {
+    string err("Non existant file: ");
+    err.append(argv[1]);
+    return ErrorMessage(err);
+  }
 
   // check output destination
-  struct stat info;
+  memset(&info,0,sizeof (info));
   if(stat(destination.c_str(), &info) ==0) {
     if(info.st_mode & S_IFDIR) {
       destination.append("/Makefile");
