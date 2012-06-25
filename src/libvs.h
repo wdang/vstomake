@@ -233,9 +233,7 @@ struct Configuration {
 
   std::unordered_map<std::string, std::unordered_map<std::string, std::string> > ToolProperties;
   
-  
-  // Files specific to this configuration.
-  // Files that are not excluded from build
+  // Files  specific to this configuration that are not excluded from build
   std::vector<File*> Files;
 
   // Path to inherited property sheets(.vsprops or .props)
