@@ -2,6 +2,7 @@
 #include "vcproject_parser.h"
 #include <gtest/gtest.h>
 #include <fstream>
+#include "vcclcompilertool.h"
 
 namespace {
 using std::string;
@@ -45,7 +46,9 @@ protected:
 
   // Cleanup static data.
   static void TearDownTestCase() {}
-
+  
+  
+  // Available to all tests
   static string Contents;
   static VCProjectParser Parser;
 };
@@ -55,9 +58,6 @@ VCProjectParser VCProjectParserTest::Parser;
 
 TEST_F(VCProjectParserTest, Parse) {
   EXPECT_TRUE(Parser.Parse(&Contents[0], Contents.size()));
-
-  //EXPECT_EQ(config.Files.size(), 327);
-  //EXPECT_EQ(project.Files.size(),446);
 }
 
 TEST_F(VCProjectParserTest, Configurations) {
@@ -73,7 +73,8 @@ TEST_F(VCProjectParserTest, Files) {
   EXPECT_TRUE(Parser.Parse(&Contents[0], Contents.size()));
   vector<vs::Configuration> configs;
   EXPECT_TRUE(Parser.Configurations(&configs));
-
+  EXPECT_EQ(configs[0].Files.size(), 327);
+  
   vector<vs::File> files;
   EXPECT_TRUE(Parser.Files(&files));
   EXPECT_EQ(files.size(), 446);
@@ -81,27 +82,14 @@ TEST_F(VCProjectParserTest, Files) {
 
 TEST_F(VCProjectParserTest, Filters) {
   EXPECT_TRUE(Parser.Parse(&Contents[0], Contents.size()));
-
-  //EXPECT_EQ(config.Files.size(), 327);
-  //EXPECT_EQ(project.Files.size(),446);
 }
 
 TEST_F(VCProjectParserTest, ProjectProperties) {
   EXPECT_TRUE(Parser.Parse(&Contents[0], Contents.size()));
   unordered_map<string, string> props;
-  Parser.ProjectProperties(&props);
-
-  //EXPECT_EQ(config.Files.size(), 327);
-  //EXPECT_EQ(project.Files.size(),446);
+  EXPECT_TRUE(Parser.ProjectProperties(&props));
 }
 
 
-TEST_F(VCProjectParserTest, Other) {
-  vs::Project proj;
-  vs::Project::Parse("testing\\base.vcproj",&proj);
-
-  //EXPECT_EQ(config.Files.size(), 327);
-  //EXPECT_EQ(project.Files.size(),446);
-}
 } //namespace
 #endif
