@@ -2,6 +2,8 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vstomake", "vstomake.vcproj", "{329A79B1-EAE9-4CA0-BCF1-E9F26936477E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vstomake_tests", "vstomake_tests.vcproj", "{3957EF2A-2C7F-435A-992B-EF7B77F915AE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -12,6 +14,10 @@ Global
 		{329A79B1-EAE9-4CA0-BCF1-E9F26936477E}.Debug|Win32.Build.0 = Debug|Win32
 		{329A79B1-EAE9-4CA0-BCF1-E9F26936477E}.Release|Win32.ActiveCfg = Release|Win32
 		{329A79B1-EAE9-4CA0-BCF1-E9F26936477E}.Release|Win32.Build.0 = Release|Win32
+		{3957EF2A-2C7F-435A-992B-EF7B77F915AE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3957EF2A-2C7F-435A-992B-EF7B77F915AE}.Debug|Win32.Build.0 = Debug|Win32
+		{3957EF2A-2C7F-435A-992B-EF7B77F915AE}.Release|Win32.ActiveCfg = Release|Win32
+		{3957EF2A-2C7F-435A-992B-EF7B77F915AE}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

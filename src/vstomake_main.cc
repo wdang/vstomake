@@ -86,10 +86,6 @@ int ErrorMessage(const string& msg) {
 }
 
 int main(int argc, char* argv[]) {
-#ifdef VSTOMAKE_RUN_TESTS2
-  testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-#else
   vector<string> args(argv, argv+argc);
 
   if(argc < 2) {
@@ -169,5 +165,4 @@ int main(int argc, char* argv[]) {
 
   fflush(stdout);
   return 0;
-#endif
 }

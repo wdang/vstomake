@@ -2,10 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="vstomake"
-	ProjectGUID="{329A79B1-EAE9-4CA0-BCF1-E9F26936477E}"
-	RootNamespace="vstomake"
-	Keyword="Win32Proj"
+	Name="vstomake_tests"
+	ProjectGUID="{3957EF2A-2C7F-435A-992B-EF7B77F915AE}"
+	RootNamespace="vstomake_tests"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -18,10 +17,9 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\bin\$(ConfigurationName)"
-			IntermediateDirectory="$(OutDir)\obj"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			UseOfATL="0"
 			CharacterSet="1"
 			>
 			<Tool
@@ -41,18 +39,17 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP2"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\external"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;RAPIDXML_NO_EXCEPTIONS"
+				PreprocessorDefinitions="_DEBUG;VSTOMAKE_RUN_TESTS;WIN32_LEAN_AND_MEAN;NOMINMAX;RAPIDXML_NO_EXCEPTIONS"
+				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="precompiled.h"
+				PrecompiledHeaderThrough="precompiled_tests.h"
 				WarningLevel="4"
-				DebugInformationFormat="3"
-				ForcedIncludeFiles="precompiled.h"
+				DebugInformationFormat="4"
+				ForcedIncludeFiles="precompiled_tests.h"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -65,9 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkIncremental="2"
 				GenerateDebugInformation="true"
-				SubSystem="1"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -94,10 +89,10 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\bin\$(ConfigurationName)"
-			IntermediateDirectory="$(OutDir)\obj"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -118,20 +113,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="..\external"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
-				RuntimeLibrary="1"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="precompiled.h"
 				WarningLevel="4"
-				WarnAsError="true"
-				DebugInformationFormat="0"
-				ForcedIncludeFiles="precompiled.h"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -144,13 +131,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkIncremental="1"
-				GenerateDebugInformation="false"
-				SubSystem="0"
-				OptimizeReferences="1"
-				EnableCOMDATFolding="1"
-				LinkTimeCodeGeneration="1"
-				SetChecksum="true"
+				GenerateDebugInformation="true"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -179,59 +162,37 @@
 	<References>
 	</References>
 	<Files>
-		<File
-			RelativePath=".\internal.h"
+		<Filter
+			Name="Source Files"
+			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
 				RelativePath=".\internal.cc"
 				>
 			</File>
-		</File>
-		<File
-			RelativePath=".\libvs.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\libvs.h"
-			>
-		</File>
-		<File
-			RelativePath=".\libvs_private.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\libvs_private.h"
-			>
-		</File>
-		<File
-			RelativePath=".\make_file.h"
-			>
+			<File
+				RelativePath=".\libvs.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\libvs_private.cc"
+				>
+			</File>
 			<File
 				RelativePath=".\make_file.cc"
 				>
 			</File>
-		</File>
-		<File
-			RelativePath=".\msbuild_parser.h"
-			>
 			<File
 				RelativePath=".\msbuild_parser.cc"
 				>
 			</File>
-		</File>
-		<File
-			RelativePath=".\output_option.cc"
-			>
-		</File>
-		<File
-			RelativePath=".\output_option.h"
-			>
-		</File>
-		<File
-			RelativePath=".\precompiled.h"
-			>
 			<File
-				RelativePath=".\precompiled.cc"
+				RelativePath=".\output_option.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\precompiled_tests.cc"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -239,66 +200,56 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
+						PrecompiledHeaderThrough="precompiled_tests.h"
+						ForcedIncludeFiles=""
 					/>
 				</FileConfiguration>
 			</File>
-		</File>
-		<File
-			RelativePath=".\project_parser.h"
-			>
 			<File
 				RelativePath=".\project_parser.cc"
 				>
 			</File>
-		</File>
-		<File
-			RelativePath=".\string_tokenizer.h"
-			>
-		</File>
-		<File
-			RelativePath=".\utility.h"
-			>
 			<File
 				RelativePath=".\utility.cc"
 				>
 			</File>
-		</File>
-		<File
-			RelativePath=".\vcclcompilertool.h"
-			>
 			<File
 				RelativePath=".\vcclcompilertool.cc"
 				>
 			</File>
-		</File>
-		<File
-			RelativePath=".\vclinkertool.h"
-			>
 			<File
 				RelativePath=".\vclinkertool.cc"
 				>
 			</File>
-		</File>
-		<File
-			RelativePath=".\vcproject_parser.h"
-			>
 			<File
 				RelativePath=".\vcproject_parser.cc"
 				>
 			</File>
-		</File>
-		<File
-			RelativePath=".\vstomake_main.cc"
+			<File
+				RelativePath=".\vcproject_parser_tests.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\vstomake_main_test.cc"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Header Files"
+			Filter="h;hpp;hxx;hm;inl;inc;xsd"
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-		</File>
+			<File
+				RelativePath=".\precompiled_tests.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Resource Files"
+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+			>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>
