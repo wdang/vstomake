@@ -39,7 +39,7 @@ X(FloatingPointModel, floatingPointModel, 3)
 
 #define X(NAME, TYPE, LEN) VCCLCompilerTool::Enum::TYPE VCCLCompilerTool::NAME() const { \
     auto iter = properties->find(# NAME);                                                \
-    VCCLCompilerTool::Enum::TYPE rv;                                                     \
+    VCCLCompilerTool::Enum::TYPE rv = (VCCLCompilerTool::Enum::TYPE)0;                   \
     if (iter != properties->end()) {                                                     \
       int offset = strtol(iter->second.c_str(), 0, 10) + 1;                              \
       if(strcmp(#NAME,"DebugInformationFormat") ==0 && offset >= 3)                      \
