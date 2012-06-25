@@ -79,7 +79,7 @@ DebugWin32Prebuild:
 DebugWin32Build:CURRENT_OUTDIR    :=../bin/Debug
 DebugWin32Build:CURRENT_INTDIR    :=../bin/Debug/obj
 DebugWin32Build:CURRENT_CXXFLAGS  := -include precompiled.h -I../external
-DebugWin32Build:CURRENT_CPPFLAGS  :=-DWIN32 -D_DEBUG -D_CONSOLE -DVSTOMAKE_RUN_TESTS -DRAPIDXML_NO_EXCEPTIONS
+DebugWin32Build:CURRENT_CPPFLAGS  :=-DWIN32 -D_DEBUG -D_CONSOLE -DRAPIDXML_NO_EXCEPTIONS
 DebugWin32Build:CURRENT_TARGET    :=$(PROJECT_NAME)
 DebugWin32Build:DebugWin32Stats $(DebugWin32_OBJS)
 	$(CXX)  $(CPPFLAGS) $(CXXFLAGS) $(LDFLAGS)  $(DebugWin32_OBJS) -o $(TARGET)
