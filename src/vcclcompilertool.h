@@ -20,203 +20,216 @@ namespace vs {
 // VCCLCompilerTool is for convienent access
 // to the VCCLCompilerTool properties of a project configuration.
 struct VCCLCompilerTool {
+  struct Enum {
+    enum asmListingOption {
+      asmListingNone,
+      asmListingAssemblyOnly,
+      asmListingAsmMachineSrc,
+      asmListingAsmMachine,
+      asmListingAsmSrc
+    };
 
-  // All possible enumeration values
-  // used by VCCLCompilerTool
-  enum Enum {
-    Enum_Unknown,
+    enum basicRuntimeCheckOption {
+      runtimeBasicCheckNone,
+      runtimeCheckStackFrame,
+      runtimeCheckUninitVariables,
+      runtimeBasicCheckAll
+    };
 
-    Enum_asmListingOption,
-    Enum_asmListingNone,
-    Enum_asmListingAssemblyOnly,
-    Enum_asmListingAsmMachineSrc,
-    Enum_asmListingAsmMachine,
-    Enum_asmListingAsmSrc,
+    enum browseInfoOption {
+      brInfoNone,
+      brAllInfo,
+      brNoLocalSymbols
+    };
 
-    Enum_basicRuntimeCheckOption,
-    Enum_runtimeBasicCheckNone,
-    Enum_runtimeCheckStackFrame,
-    Enum_runtimeCheckUninitVariables,
-    Enum_runtimeBasicCheckAll,
+    enum callingConventionOption {
+      callConventionCDecl,
+      callConventionFastCall,
+      callConventionStdCall
+    };
 
-    Enum_browseInfoOption,
-    Enum_brInfoNone,
-    Enum_brAllInfo,
-    Enum_brNoLocalSymbols,
+    enum CompileAsOptions {
+      compileAsDefault,
+      compileAsC,
+      compileAsCPlusPlus
+    };
 
-    Enum_callingConventionOption,
-    Enum_callConventionCDecl,
-    Enum_callConventionFastCall,
-    Enum_callConventionStdCall,
+    enum compileAsManagedOptions {
+      managedNotSet,
+      managedAssembly,
+      managedAssemblyPure,
+      managedAssemblySafe,
+      managedAssemblyOldSyntax
+    };
 
-    Enum_CompileAsOptions,
-    Enum_compileAsDefault,
-    Enum_compileAsC,
-    Enum_compileAsCPlusPlus,
+    enum debugOption {
+      debugDisabled,
+      debugOldStyleInfo,
+      debugEnabled,
+      debugEditAndContinue
+    };
 
-    Enum_compileAsManagedOptions,
-    Enum_managedNotSet,
-    Enum_managedAssembly,
-    Enum_managedAssemblyPure,
-    Enum_managedAssemblySafe,
-    Enum_managedAssemblyOldSyntax,
+    enum enhancedInstructionSetType {
+      enhancedInstructionSetTypeNotSet,
+      enhancedInstructionSetTypeSIMD,
+      enhancedInstructionSetTypeSIMD2
+    };
 
-    Enum_debugOption,
-    Enum_debugDisabled,
-    Enum_debugOldStyleInfo,
-    Enum_debugEnabled,
-    Enum_debugEditAndContinue,
+    enum compilerErrorReportingType {
+      compilerErrorReportingDefault,
+      compilerErrorReportingPrompt,
+      compilerErrorReportingQueue
+    };
 
-    Enum_enhancedInstructionSetType,
-    Enum_enhancedInstructionSetTypeNotSet,
-    Enum_enhancedInstructionSetTypeSIMD,
-    Enum_enhancedInstructionSetTypeSIMD2,
+    enum cppExceptionHandling {
+      cppExceptionHandlingNo,
+      cppExceptionHandlingYes,
+      cppExceptionHandlingYesWithSEH
+    };
 
-    Enum_compilerErrorReportingType,
-    Enum_compilerErrorReportingDefault,
-    Enum_compilerErrorReportingPrompt,
-    Enum_compilerErrorReportingQueue,
+    enum favorSizeOrSpeedOption {
+      favorNone,
+      favorSpeed,
+      favorSize
+    };
 
-    Enum_cppExceptionHandling,
-    Enum_cppExceptionHandlingNo,
-    Enum_cppExceptionHandlingYes,
-    Enum_cppExceptionHandlingYesWithSEH,
+    enum floatingPointModel {
+      FloatingPointPrecise,
+      FloatingPointStrict,
+      FloatingPointFast,
+    };
 
-    Enum_favorSizeOrSpeedOption,
-    Enum_favorNone,
-    Enum_favorSpeed,
-    Enum_favorSize,
-
-    Enum_preprocessOption,
-    Enum_preprocessNo,
-    Enum_preprocessYes,
-    Enum_preprocessNoLineNumbers,
-
-    Enum_inlineExpansionOption,
-    Enum_expandDisable,
-    Enum_expandOnlyInline,
-    Enum_expandAnySuitable,
-
-    Enum_optimizeOption,
-    Enum_optimizeDisabled,
-    Enum_optimizeMinSpace,
-    Enum_optimizeMaxSpeed,
-    Enum_optimizeFull,
-    Enum_optimizeCustom,
-
-    Enum_runtimeLibraryOption,
-    Enum_rtMultiThreaded,
-    Enum_rtMultiThreadedDebug,
-    Enum_rtMultiThreadedDLL,
-    Enum_rtMultiThreadedDebugDLL,
-
-    Enum_structMemberAlignOption,
-    Enum_alignNotSet,
-    Enum_alignSingleByte,
-    Enum_alignTwoBytes,
-    Enum_alignFourBytes,
-    Enum_alignEightBytes,
-    Enum_alignSixteenBytes,
-
-    Enum_pchOption,
-    Enum_pchNone,
-    Enum_pchCreateUsingSpecific,
-    Enum_pchUseUsingSpecific,
-
-    Enum_warningLevelOption,
-    Enum_warningLevel_0,
-    Enum_warningLevel_1,
-    Enum_warningLevel_2,
-    Enum_warningLevel_3,
-    Enum_warningLevel_4,
-
-    Enum_floatingPointModel,
-    Enum_FloatingPointPrecise,
-    Enum_FloatingPointStrict,
-    Enum_FloatingPointFast,
+    enum preprocessOption {
+      preprocessNo,
+      preprocessYes,
+      preprocessNoLineNumbers
+    };
+    
+    enum inlineExpansionOption {
+      expandDisable,
+      expandOnlyInline,
+      expandAnySuitable
+    };
+    
+    enum optimizeOption {
+      optimizeDisabled,
+      optimizeMinSpace,
+      optimizeMaxSpeed,
+      optimizeFull,
+      optimizeCustom
+    };
+    
+    enum runtimeLibraryOption {
+      rtMultiThreaded,
+      rtMultiThreadedDebug,
+      rtMultiThreadedDLL,
+      rtMultiThreadedDebugDLL
+    };
+    
+    enum structMemberAlignOption {
+      alignNotSet,
+      alignSingleByte,
+      alignTwoBytes,
+      alignFourBytes,
+      alignEightBytes,
+      alignSixteenBytes
+    };
+    
+    enum pchOption {
+      pchNone,
+      pchCreateUsingSpecific,
+      pchUseUsingSpecific
+    };
+    
+    enum warningLevelOption {
+      warningLevel_0,
+      warningLevel_1,
+      warningLevel_2,
+      warningLevel_3,
+      warningLevel_4
+    };
   };
 
-  // Access VCCLCompilerTool properties from the given
-  // project configuration
-  
-   
-  // The following accessors return "" or Enum_Unknown or false 
-  // to represent an empty value
-  const char* AdditionalIncludeDirectories() const;
-  const char* AdditionalOptions() const;
-  const char* AdditionalUsingDirectories() const;
-  const char* AssemblerListingLocation() const;
-  Enum        AssemblerOutput() const;
-  Enum        BasicRuntimeChecks() const;
-  Enum        BrowseInformation() const;
-  const char* BrowseInformationFile() const;
-  bool        BufferSecurityCheck() const;
-  Enum        CallingConvention() const;
-  Enum        CompileAs() const;
-  Enum        CompileAsManaged() const;
-  bool        CompileOnly() const;
-  Enum        DebugInformationFormat() const;
-  bool        DefaultCharIsUnsigned() const;
-  bool        Detect64BitPortabilityProblems() const;
-  bool        DisableLanguageExtensions() const;
-  const char* DisableSpecificWarnings() const;
-  Enum        EnableEnhancedInstructionSet() const;
-  bool        EnableFiberSafeOptimizations() const;
-  bool        EnableFunctionLevelLinking() const;
-  bool        EnableIntrinsicFunctions() const;
-  bool        EnablePREfast() const;
-  Enum        ErrorReporting() const;
-  Enum        ExceptionHandling() const;
-  const char* ExecutionBucket() const;
-  bool        ExpandAttributedSource() const;
-  Enum        FavorSizeOrSpeed() const;
-  bool        FloatingPointExceptions() const;
-  Enum        FloatingPointModel() const;
-  bool        ForceConformanceInForLoopScope() const;
-  const char* ForcedIncludeFiles() const;
-  const char* ForcedUsingFiles() const;
-  const char* FullIncludePath() const;
-  Enum        GeneratePreprocessedFile() const;
-  bool        GenerateXMLDocumentationFiles() const;
-  bool        IgnoreStandardIncludePath() const;
-  Enum        InlineFunctionExpansion() const;
-  bool        KeepComments() const;
-  bool        MinimalRebuild() const;
-  const char* ObjectFile() const;
-  const char* OmitDefaultLibName() const;
-  bool        OmitFramePointers() const;
-  bool        OpenMP() const;
-  Enum        Optimization() const;
-  const char* PrecompiledHeaderFile() const;
-  const char* PrecompiledHeaderThrough() const;
-  const char* PreprocessorDefinitions() const;
-  const char* ProgramDataBaseFileName() const;
-  Enum        RuntimeLibrary() const;
-  bool        RuntimeTypeInfo() const;
-  bool        ShowIncludes() const;
-  bool        SmallerTypeCheck() const;
-  bool        StringPooling() const;
-  Enum        StructMemberAlignment() const;
-  bool        SuppressStartupBanner() const;
-  const char* ToolKind() const;
-  const char* toolName() const;
-  const char* ToolPath() const;
-  bool        TreatWChar_tAsBuiltInType() const;
-  bool        UndefineAllPreprocessorDefinitions() const;
-  const char* UndefinePreprocessorDefinitions() const;
-  const char* UseFullPaths() const;
-  Enum        UsePrecompiledHeader() const;
-  bool        UseUnicodeResponseFiles() const;
-  const char* VCProjectEngine() const;
-  bool        WarnAsError() const;
-  Enum        WarningLevel() const;
-  bool        WholeProgramOptimization() const;
-  const char* XMLDocumentationFileName() const;
+  const char*                   AdditionalIncludeDirectories() const;
+  const char*                   AdditionalOptions() const;
+  const char*                   AdditionalUsingDirectories() const;
+  const char*                   AssemblerListingLocation() const;
+  Enum::asmListingOption        AssemblerOutput() const;
+  Enum::basicRuntimeCheckOption BasicRuntimeChecks() const;
+  Enum::browseInfoOption        BrowseInformation() const;
+  const char*                   BrowseInformationFile() const;
+  bool                          BufferSecurityCheck() const;
+  Enum::callingConventionOption CallingConvention() const;
+  Enum::CompileAsOptions        CompileAs() const;
+  Enum::compileAsManagedOptions CompileAsManaged() const;
+  bool                             CompileOnly() const;
+  Enum::debugOption                DebugInformationFormat() const;
+  bool                             DefaultCharIsUnsigned() const;
+  bool                             Detect64BitPortabilityProblems() const;
+  bool                             DisableLanguageExtensions() const;
+  const char*                      DisableSpecificWarnings() const;
+  Enum::enhancedInstructionSetType EnableEnhancedInstructionSet() const;
+  bool                             EnableFiberSafeOptimizations() const;
+  bool                             EnableFunctionLevelLinking() const;
+  bool                             EnableIntrinsicFunctions() const;
+  bool                             EnablePREfast() const;
+  Enum::compilerErrorReportingType ErrorReporting() const;
+  Enum::cppExceptionHandling       ExceptionHandling() const;
+  const char*                      ExecutionBucket() const;
+  bool                             ExpandAttributedSource() const;
+  Enum::favorSizeOrSpeedOption     FavorSizeOrSpeed() const;
+  bool                             FloatingPointExceptions() const;
+  Enum::floatingPointModel         FloatingPointModel() const;
+  bool                             ForceConformanceInForLoopScope() const;
+  const char*                      ForcedIncludeFiles() const;
+  const char*                      ForcedUsingFiles() const;
+  const char*                      FullIncludePath() const;
+  Enum::preprocessOption           GeneratePreprocessedFile() const;
+  bool                             GenerateXMLDocumentationFiles() const;
+  bool                             IgnoreStandardIncludePath() const;
+  Enum::inlineExpansionOption      InlineFunctionExpansion() const;
+  bool                             KeepComments() const;
+  bool                             MinimalRebuild() const;
+  const char*                      ObjectFile() const;
+  const char*                      OmitDefaultLibName() const;
+  bool                             OmitFramePointers() const;
+  bool                             OpenMP() const;
+  Enum::optimizeOption             Optimization() const;
+  const char*                      PrecompiledHeaderFile() const;
+  const char*                      PrecompiledHeaderThrough() const;
+  const char*                      PreprocessorDefinitions() const;
+  const char*                      ProgramDataBaseFileName() const;
+  Enum::runtimeLibraryOption       RuntimeLibrary() const;
+  bool                             RuntimeTypeInfo() const;
+  bool                             ShowIncludes() const;
+  bool                             SmallerTypeCheck() const;
+  bool                             StringPooling() const;
+  Enum::structMemberAlignOption    StructMemberAlignment() const;
+  bool                             SuppressStartupBanner() const;
+  const char*                      ToolKind() const;
+  const char*                      toolName() const;
+  const char*                      ToolPath() const;
+  bool                             TreatWChar_tAsBuiltInType() const;
+  bool                             UndefineAllPreprocessorDefinitions() const;
+  const char*                      UndefinePreprocessorDefinitions() const;
+  const char*                      UseFullPaths() const;
+  Enum::pchOption                  UsePrecompiledHeader() const;
+  bool                             UseUnicodeResponseFiles() const;
+  const char*                      VCProjectEngine() const;
+  bool                             WarnAsError() const;
+  Enum::warningLevelOption         WarningLevel() const;
+  bool                             WholeProgramOptimization() const;
+  const char*                      XMLDocumentationFileName() const;
 
- private:
+
+private:
   friend struct Project;
   friend struct Configuration;
   VCCLCompilerTool();
   const std::unordered_map<std::string, std::string>* properties;
 };
 }
+
+
+
+

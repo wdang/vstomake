@@ -37,73 +37,16 @@ X(UsePrecompiledHeader, pchOption, 3)\
 X(WarningLevel, warningLevelOption, 5)\
 X(FloatingPointModel, floatingPointModel, 3)
 
-// Holds information about a VCCLCompilerTool property,
-// it's enumeration type, and its maximum possible value.
-struct PropertyInfo {
-  const char* name;
-  VCCLCompilerTool::Enum type;
-  int         max;
-};
-
-// kVCCLCompilerPropertyInfo holds all properties that
-// return an enumeration value
-#define X(NAME, TYPE, LEN) {# NAME, VCCLCompilerTool::Enum_ ## TYPE, LEN},
-static PropertyInfo kVCCLCompilerPropertyInfo[] = {
-  VCCLCOMPILERTOOL_ENUM_ACCESSORS
-};
-#undef X
-
-// Returns the enumeration associated wth the specified
-// VCCLCompilerTool property and it's associated value.
-//
-// The arguments given to GetEnum will be straight
-// from the parsed vcproj file.
-//
-// @name  VCCLCompilerTool property name
-// @value VCCLCompilerTool property value
-//
-// returns VCCLCompilerTool::Enum_Unknown if the property's value is not set
-VCCLCompilerTool::Enum GetEnum(const std::string& name, const std::string& value) {
-  VCCLCompilerTool::Enum rv = VCCLCompilerTool::Enum_Unknown;
-  
-  for(size_t i = 0; i < sizeof(kVCCLCompilerPropertyInfo)/sizeof(kVCCLCompilerPropertyInfo[0]); ++i) {
-    PropertyInfo& prop = kVCCLCompilerPropertyInfo[i];
-    
-    if(name.compare(prop.name) == 0) {
-      // Since we shove all enumerations in a giant
-      // enum (VCCLCompilerTool::Enum) instead of defining them separately, we 
-      // use an offset from PropertyInfo.type to obtain the correct Enum
-      // representation of 'value'. The offset is incremented because
-      // all property values are zero-based
-      int offset = strtol(value.c_str(), 0, 10) + 1;
-      
-      if(offset <= prop.max + 1) {
-        // For some reason the DebugInformationFormat property
-        // uses the following values: [0,1,3,4]
-        // instead of: [0,1,2,3] 
-        if(prop.type == VCCLCompilerTool::Enum_debugOption && offset >= 3)
-          --offset;
-        
-        rv = static_cast<VCCLCompilerTool::Enum>(prop.type + offset);
-        break;
-      }
-      
-    }
-    
-  }
-  
-  return rv;
-}
-
-#define X(NAME, TYPE, LEN) VCCLCompilerTool::Enum VCCLCompilerTool::NAME() const { \
-    auto iter = properties->find(# NAME);                                           \
-    VCCLCompilerTool::Enum rv;                                                     \
-    if (iter != properties->end()) {                                                \
-      rv = GetEnum(# NAME, iter->second);                                          \
-    }else {                                                                        \
-      rv = VCCLCompilerTool::Enum_Unknown;                                         \
-    }                                                                              \
-    return rv;                                                                     \
+#define X(NAME, TYPE, LEN) VCCLCompilerTool::Enum::TYPE VCCLCompilerTool::NAME() const { \
+    auto iter = properties->find(# NAME);                                                \
+    VCCLCompilerTool::Enum::TYPE rv;                                                     \
+    if (iter != properties->end()) {                                                     \
+      int offset = strtol(iter->second.c_str(), 0, 10) + 1;                              \
+      if(strcmp(#NAME,"DebugInformationFormat") ==0 && offset >= 3)                      \
+        --offset;                                                                        \
+      rv = static_cast<VCCLCompilerTool::Enum::TYPE>(offset);                            \
+    }                                                                                    \
+    return rv;                                                                           \
 }
 VCCLCOMPILERTOOL_ENUM_ACCESSORS
 #undef X
@@ -175,6 +118,7 @@ X(UseFullPaths)\
 X(VCProjectEngine)\
 X(XMLDocumentationFileName)\
 X(toolName)
+
 #define X(NAME) const char* VCCLCompilerTool::NAME() const { \
     auto iter = properties->find(# NAME); \
     return iter == properties->end() ? "" : iter->second.c_str(); \
